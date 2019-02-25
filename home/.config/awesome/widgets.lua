@@ -73,7 +73,10 @@ menubar.utils.terminal = variables.terminal -- Set the terminal for applications
 -- Create a textclock widget
 local text_clock = wibox.widget.textclock()
 
-local calendar_widget = awful.widget.calendar_popup.month()
+local calendar_widget = awful.widget.calendar_popup.month{
+    bg="black",
+    style_focus={bg_color="blue"}
+}
 
 text_clock:buttons(awful.util.table.join(
         awful.button({}, 1,
