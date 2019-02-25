@@ -25,6 +25,10 @@ variables.screenshot_tool = command.get_available_command({
     {command="gnome-screenshot", args="--interactive"},
     {command="spectacle"},
     })
+variables.password_manager = command.get_available_command({
+    {command="keepass2", test="which keepass2"},
+    {command="keepass", test="which keepass"},
+    })
 
 variables.editor_cmd = variables.terminal .. " -e " .. variables.editor
 

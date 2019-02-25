@@ -323,6 +323,11 @@ local globalkeys = awful.util.table.join(root.keys(),
                 awful.spawn(variables.browser)
             end,
             {description = "open a browser", group = "launcher"}),
+    awful.key({ modkey, "Control" }, "p",
+            function ()
+                awful.spawn(variables.password_manager)
+            end,
+            {description = "open password manager", group = "launcher"}),
     awful.key({}, "Print",
             function ()
                 awful.spawn(variables.screenshot_tool, true,
