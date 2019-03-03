@@ -17,7 +17,7 @@ function command.start_if_not_running(command, args, path)
                         full_command = path .. "/" .. full_command
                     end
                     D.log(D.debug, 'Running: ' .. full_command)
-                    awful.spawn(full_command)
+                    awful.spawn.with_shell(full_command)
                     return true
                 else
                     D.log(D.debug, 'Already running')

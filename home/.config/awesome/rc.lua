@@ -369,10 +369,10 @@ local globalkeys = awful.util.table.join(root.keys(),
 
     --- Brightness
     awful.key({ }, "XF86MonBrightnessUp",
-            function() awful.spawn("xbacklight -inc 10") end,
+            function() awful.spawn.with_shell("xbacklight -inc 10") end,
             {description="Increase brightness", group="screen"}),
     awful.key({ }, "XF86MonBrightnessDown",
-            function() awful.spawn("xbacklight -dec 10") end,
+            function() awful.spawn.with_shell("xbacklight -dec 10") end,
             {description="Decrease brightness", group="screen"}),
 
     -- Prompt

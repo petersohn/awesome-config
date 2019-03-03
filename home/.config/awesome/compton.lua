@@ -111,7 +111,7 @@ end
 awesome.connect_signal("startup",
     function()
         if enabled then
-            awful.spawn("killall compton")
+            awful.spawn.with_shell("killall compton")
             start()
         end
     end)

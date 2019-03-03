@@ -229,7 +229,7 @@ end
 
 function locker.init(args_)
     args = args_
-    awful.spawn("xset dpms 0 0 0")
+    awful.spawn.with_shell("xset dpms 0 0 0")
     async.spawn_and_get_output("xautolock -exit", initialize)
 end
 

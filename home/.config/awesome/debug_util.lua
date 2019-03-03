@@ -86,8 +86,8 @@ function D.log(severity, message)
     if severity >= D.critical then
         awful.spawn({archive_script, debug_file_name})
     end
-    awful.spawn({cleanup_script, debug_file_name, "10000"})
-    awful.spawn({cleanup_script, log_file_name, "10000"})
+    awful.spawn.with_shell(cleanup_script .. " " .. debug_file_name .. " 10000")
+    awful.spawn.with_shell(cleanup_script .. " " .. log_file_name .. " 10000")
 end
 
 function D.notify_error(args)

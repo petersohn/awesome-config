@@ -13,7 +13,7 @@ local function call_power_command(name)
     local command = commands[name]
     if command then
         D.log(D.info, "Calling command: " .. command)
-        awful.spawn(command)
+        awful.spawn.with_shell(command)
     else
         local message = "No command found for " .. name
         D.log(D.error, message)

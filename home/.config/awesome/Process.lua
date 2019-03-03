@@ -209,7 +209,7 @@ function Process.new(name, command)
     if pid then
         D.log(D.info, "Process " .. name .. " is already running as "
             .. tostring(pid) .. ". Restarting.")
-        awful.spawn("kill " .. tostring(pid))
+        awful.spawn.with_shell("kill " .. tostring(pid))
         self.state_machine:process_event("start")
     end
 
@@ -292,11 +292,11 @@ function actions.start(args)
 end
 
 function actions.stop(args)
-    awful.spawn("kill " .. tostring(args.state_machine.obj.pid))
+    awful.spawn.with_shell("kill " .. tostring(args.state_machine.obj.pid))
 end
 
 function actions.kill(args)
-    awful.spawn("kill -9 " .. tostring(args.state_machine.obj.pid))
+    awful.spawn.with_shell("kill -9 " .. tostring(args.state_machine.obj.pid))
 end
 
 function actions.reset_tries(args)
