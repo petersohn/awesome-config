@@ -19,9 +19,8 @@ local function handle_start_command(command, action)
         D.notify_error({
                 title="Error starting command: " .. command,
                 text=result})
-    else
-        return result
     end
+    return result
 end
 
 function async.spawn_and_get_output(command, callback)

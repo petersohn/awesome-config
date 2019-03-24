@@ -38,15 +38,26 @@ local function on_command_finished(command, result, callback)
 end
 
 local function call_tresorit_cli(command, callback, error_handler)
-    local result = {lines={}, has_error=nil}
+    local result = {lines={}, has_error=nil, result_code=nil, stderr=nil}
+    local on_done = function()
+        if result.has_error ~= nil and result.result_code ~= nil then
+            if not result.has_error and result.result_code ~= 0 then
+                error_handler(result.stderr)
+            end
+        end
+    end
+
     D.log(D.debug, "Call tresorit-cli " .. command)
-    local result = async.spawn_and_get_lines(
+    local spawn_result = async.spawn_and_get_lines(
             tresorit_command .. " --porcelain " .. command, {
         line=function(line)
             table.insert(result.lines, gears.string.split(line, "\t"))
         end,
-        finish=function()
-            return result.has_error == nil or result.has_error
+        finish=function(code, log)
+            result.result_code = code
+            result.stderr = log.stderr
+            on_done()
+            return true
         end,
         done=function()
             local res, err = xpcall(
@@ -60,10 +71,12 @@ local function call_tresorit_cli(command, callback, error_handler)
                 if not handled then
                     D.notify_error({title="Error", text=err})
                 end
+            else
+                on_done()
             end
         end})
-    if type(result) == "string" and error_handler then
-        error_handler(result)
+    if type(spawn_result) == "string" and error_handler then
+        error_handler(spawn_result)
     end
 end
 
@@ -120,9 +133,9 @@ tresorit.widget = wibox.widget{
     logout_widget,
     stopped_widget,
     restricted_widget,
-    error_widget,
     sync_widget,
     sync_error_widget,
+    error_widget,
     layout=wibox.layout.stack,
     visible=tresorit_command ~= nil
 }
@@ -144,9 +157,15 @@ local function append_tooltip_text(s)
     tooltip_text = tooltip_text .. s
 end
 
-local function commit()
-    tooltip.text = tooltip_text
+local function commit(err)
     timer:start()
+    if err then
+        tooltip.text = err
+        error_widget.visible = true
+        D.notify_error{title='Tresorit error', text=err}
+        return true
+    end
+    tooltip.text = tooltip_text
 end
 
 local function on_files(result, error_string)
@@ -277,10 +296,9 @@ if tresorit_command ~= nil then
     gears.timer.start_new(60, function()
         local now = os.time()
         if now - last_call > 60 then
-            D.log(D.critical, "Tresorit-cli not called since "
-                .. os.date("%c", last_call))
-            error_widget.visible = true
-            return false
+            message = "Tresorit-cli not called since "
+                .. os.date("%c", last_call)
+            commit(message)
         end
         return true
     end)
