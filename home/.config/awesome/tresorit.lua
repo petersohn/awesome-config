@@ -120,6 +120,12 @@ local sync_widget = wibox.widget{
     widget=wibox.widget.imagebox,
     visible=false,
 }
+local sync_indexing_widget = wibox.widget{
+    image=variables.config_dir .. "/sync-indexing.svg",
+    resize=true,
+    widget=wibox.widget.imagebox,
+    visible=false,
+}
 local sync_error_widget = wibox.widget{
     image=variables.config_dir .. "/sync-error.svg",
     resize=true,
@@ -134,6 +140,7 @@ tresorit.widget = wibox.widget{
     stopped_widget,
     restricted_widget,
     sync_widget,
+    sync_indexing_widget,
     sync_error_widget,
     error_widget,
     layout=wibox.layout.stack,
@@ -201,6 +208,7 @@ local function on_transfers(result, error_string)
         return
     end
     local has_sync = false
+    local is_indexing = false
     local has_tresor_error = false
     local has_file_error = false
     local status_text = ""
@@ -213,6 +221,9 @@ local function on_transfers(result, error_string)
             has_sync = true
             status_text = status_text .. "\n" .. tresor
                 .. ": Files remaining: " .. remaining
+        elseif status == "indexing" then
+            status_text = status_text .. "\n" .. tresor .. ": Indexing"
+            is_indexing = true
         elseif status ~= "idle" then
             status_text = status_text .. "\n" .. tresor .. ": " .. status
             has_tresor_error = true
@@ -223,6 +234,7 @@ local function on_transfers(result, error_string)
     end
 
     sync_widget.visible = has_sync
+    sync_indexing_widget.visible = is_indexing
     sync_error_widget.visible = not has_sync and
         (has_tresor_error or has_file_error)
     append_tooltip_text(status_text)
@@ -272,6 +284,7 @@ local function on_status(result, error_string)
             append_tooltip_text('\n' .. restriction_state)
         end
         sync_widget.visible = false
+        sync_indexing_widget.visible = false
         sync_error_widget.visible = false
         commit()
     end
