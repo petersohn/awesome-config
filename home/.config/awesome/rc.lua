@@ -837,4 +837,11 @@ locker.init({
     notify_time=30  -- seconds
 })
 
+naughty.config.notify_callback = function(args)
+    if args.icon_size == nil or args.icon_size > 64 then
+        args.icon_size = 64
+    end
+    return args
+end
+
 D.log(D.info, "Initialization finished")
