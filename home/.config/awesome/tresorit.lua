@@ -164,14 +164,27 @@ local function append_tooltip_text(s)
     tooltip_text = tooltip_text .. s
 end
 
+local backoff_timeout = 10
+
+
 local function commit(err)
-    timer:start()
     if err then
         tooltip.text = err
         error_widget.visible = true
         D.notify_error{title='Tresorit error', text=err}
+        D.log(D.debug, "Retrying tresorit in "
+            .. tostring(backoff_timeout) .. " seconds.")
+        gears.timer.start_new(backoff_timeout, function()
+            timer:start()
+        end)
+        backoff_timeout = backoff_timeout * 2
+        if backoff_timeout > 600 then
+            backoff_timeout = 600
+        end
         return true
     end
+    backoff_timeout = 10
+    timer:start()
     tooltip.text = tooltip_text
 end
 
@@ -246,7 +259,6 @@ local function on_transfers(result, error_string)
 end
 
 local function on_status(result, error_string)
-    -- D.log(D.debug, D.to_string_recursive(result))
     local running = false
     local logged_in = false
     local error_code = nil
