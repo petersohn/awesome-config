@@ -41,7 +41,7 @@ local function reset_state_machine()
             },
             Locked={
                 enter="call_callbacks",
-                exit="disable_screensaver",
+                exit={"disable_screensaver", "refresh_widgets"},
             },
         },
         transitions={
@@ -170,6 +170,11 @@ end
 
 function actions.disable_screensaver()
     async.run_commands(disable_screensaver_commands)
+end
+
+function actions.refresh_widgets()
+    local widgets = require("widgets")
+    widgets.text_clock:force_update()
 end
 
 function actions.print_not_running()

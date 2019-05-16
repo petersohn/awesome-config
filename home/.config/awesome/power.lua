@@ -1,7 +1,6 @@
 local gears = require("gears")
 local awful = require("awful")
 local naughty = require("naughty")
-local locker = require('locker')
 local shutdown = require('shutdown')
 local command = require('command')
 local dbus_ = require("dbus_")
@@ -22,6 +21,7 @@ local function call_power_command(name)
 end
 
 local function lock_and_call_power_command(command)
+    local locker = require('locker')
     locker.lock(function() call_power_command(command) end)
 end
 
