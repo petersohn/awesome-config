@@ -23,7 +23,7 @@ local function setup_config_file()
     if transparency_enabled then
         content = content ..
             'inactive-opacity = ' .. tostring(opacity) .. ';\n' ..
-            'focus-exclude = "! name~=\'\'";\n'
+            'focus-exclude = "! name~=\'\' || class_g = \'XScreenSaver\'";\n'
     end
 
     local filename = os.getenv("HOME") .. "/.config/compton.conf"
