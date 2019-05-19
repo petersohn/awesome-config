@@ -69,15 +69,20 @@ local function reset_state_machine()
                 disable={
                     to="Disabled",
                 },
+                unlocked={},
             },
             Disabled={
                 lock={
                     to="Locking",
                     action={"start_timer", "add_callback"},
                 },
+                locked={
+                    to="Locked",
+                },
                 enable={
                     to="Enabled",
                 },
+                unlocked={},
             },
             Locking={
                 lock={
