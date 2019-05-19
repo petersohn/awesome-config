@@ -165,13 +165,13 @@ end
 
 function actions.enable()
     if backend then
-        backend.lock()
+        backend.enable()
     end
 end
 
 function actions.disable()
     if backend then
-        backend.lock()
+        backend.disable()
     end
 end
 

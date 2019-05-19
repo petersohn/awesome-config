@@ -26,7 +26,7 @@ function xscreensaver.disable()
 end
 
 function xscreensaver.lock()
-      awful.spawn.with_shell("xscreensaver-command -lock")
+    awful.spawn.with_shell("xscreensaver-command -lock")
 end
 
 function xscreensaver.disable_screen_out()
