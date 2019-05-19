@@ -9,18 +9,14 @@ local StateMachine = require("StateMachine")
 
 local locker = {}
 
-local args = {}
 local callbacks = {}
 
-local enable_commands = {"xautolock -enable"}
-local disable_commands = {"xautolock -disable"}
-local disable_screensaver_commands = {"xset -dpms", "xset s off"}
-local lock_commands = {"xautolock -locknow"}
 local locked = false
 local disabled = false
 
 local actions = {}
 local state_machine = nil
+local backend = nil
 
 local function reset_state_machine()
     state_machine = StateMachine({
@@ -33,7 +29,7 @@ local function reset_state_machine()
             Enabled={
             },
             Disabled={
-                enter={"disable", "disable_screensaver"},
+                enter={"disable", "disable_screen_out"},
                 exit="enable",
             },
             Locking={
@@ -41,7 +37,7 @@ local function reset_state_machine()
             },
             Locked={
                 enter="call_callbacks",
-                exit={"disable_screensaver", "refresh_widgets"},
+                exit={"disable_screen_out", "refresh_widgets"},
             },
         },
         transitions={
@@ -149,7 +145,9 @@ function actions.call_callback(args)
 end
 
 function actions.lock()
-    async.run_commands(lock_commands)
+    if backend then
+        backend.lock()
+    end
 end
 
 function actions.start_timer()
@@ -161,15 +159,21 @@ function actions.stop_timer()
 end
 
 function actions.enable()
-    async.run_commands(enable_commands)
+    if backend then
+        backend.lock()
+    end
 end
 
 function actions.disable()
-    async.run_commands(disable_commands)
+    if backend then
+        backend.lock()
+    end
 end
 
-function actions.disable_screensaver()
-    async.run_commands(disable_screensaver_commands)
+function actions.disable_screen_out()
+    if backend then
+        backend.disable_screen_out()
+    end
 end
 
 function actions.refresh_widgets()
@@ -193,49 +197,21 @@ function locker.lock(callback)
     state_machine:process_event("lock", callback)
 end
 
-function locker._run_callback()
-    state_machine:process_event("locked")
-end
-
-function locker._on_lock_finished()
-    state_machine:process_event("unlocked")
-end
-
-local function initialize()
-    async.spawn_and_get_output("pidof xautolock",
-            function(pid_)
-                local pid = tonumber(pid_)
-                if pid then
-                    gears.timer.start_new(0.5,
-                            function()
-                                initialize()
-                                return false
-                            end)
-                else
-                    async.run_command_continuously("xautolock"
-                            .. " -locker ~/.config/awesome/lock-session"
-                            .. " -time " .. tostring(args.lock_time)
-                            .. " -killer 'xset dpms force off'"
-                            .. " -killtime " .. tostring(args.blank_time)
-                            .. " -notifier 'xset s activate'"
-                            .. " -notify " .. tostring(args.notify_time),
-                            function() end,
-                            function()
-                                state_machine:process_event("init")
-                            end,
-                            function()
-                                reset_state_machine()
-                            end)
-                end
-                return true
-            end)
-    return true
-end
-
-function locker.init(args_)
-    args = args_
-    awful.spawn.with_shell("xset dpms 0 0 0")
-    async.spawn_and_get_output("xautolock -exit", initialize)
+function locker.init(backend_, args)
+    backend = backend_
+    backend.connect_signal("locked", function()
+        state_machine:process_event("locked")
+    end)
+    backend.connect_signal("unlocked", function()
+        state_machine:process_event("unlocked")
+    end)
+    backend.connect_signal("started", function()
+        state_machine:process_event("init")
+    end)
+    backend.connect_signal("stopped", function()
+        reset_state_machine()
+    end)
+    backend.init(args)
 end
 
 reset_state_machine()

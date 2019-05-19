@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 slock awesome-client <<__EOF__
-require('locker')._run_callback()
+require('slock')._on_locked()
 __EOF__
 
 awesome-client <<__EOF__
-require('locker')._on_lock_finished()
+require('slock')._on_unlocked()
 __EOF__
 
