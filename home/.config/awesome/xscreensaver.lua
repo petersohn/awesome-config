@@ -14,31 +14,8 @@ local inhibitor = nil
 local prevent_idle_timer = gears.timer({
     timeout=10,
     callback=function()
-      awful.spawn("xscreensaver-command -deactivate")
+        awful.spawn.with_shell("xscreensaver-command -deactivate")
     end})
-
-function xscreensaver.enable()
-    enabled = true
-end
-
-function xscreensaver.disable()
-    enabled = false
-end
-
-function xscreensaver.lock()
-    awful.spawn.with_shell("xscreensaver-command -lock")
-end
-
-function xscreensaver.disable_screen_out()
-end
-
-function xscreensaver.connect_signal(...)
-    return object:connect_signal(...)
-end
-
-function xscreensaver.disconnect_signal(...)
-    return object:disconnect_signal(...)
-end
 
 local function update_prevent_idle()
     if not enabled and not locked then
@@ -54,6 +31,31 @@ local function update_prevent_idle()
             inhibitor = nil
         end
     end
+end
+
+function xscreensaver.enable()
+    enabled = true
+    update_prevent_idle()
+end
+
+function xscreensaver.disable()
+    enabled = false
+    update_prevent_idle()
+end
+
+function xscreensaver.lock()
+    awful.spawn.with_shell("xscreensaver-command -lock")
+end
+
+function xscreensaver.disable_screen_out()
+end
+
+function xscreensaver.connect_signal(...)
+    return object:connect_signal(...)
+end
+
+function xscreensaver.disconnect_signal(...)
+    return object:disconnect_signal(...)
 end
 
 local function watch()
