@@ -25,6 +25,7 @@ local function reset_state_machine()
         actions=actions,
         states={
             Start={
+                enter="stop_timer",
             },
             Enabled={
             },
