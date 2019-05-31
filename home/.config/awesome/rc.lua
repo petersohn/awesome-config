@@ -831,13 +831,13 @@ if gears.filesystem.file_readable(local_rc_file) then
     dofile(local_rc_file)
 end
 
--- locker.init(require("slock"), {
---     lock_time=15,   -- minutes
---     blank_time=10,  -- minutes
---     notify_time=30  -- seconds
--- })
+locker.init(require("xautolock"), {
+    lock_time=15,   -- minutes
+    blank_time=10,  -- minutes
+    notify_time=30  -- seconds
+})
 
-locker.init(require("xscreensaver"))
+-- locker.init(require("xscreensaver"))
 
 naughty.config.notify_callback = function(args)
     if args.icon_size == nil or args.icon_size > 64 then

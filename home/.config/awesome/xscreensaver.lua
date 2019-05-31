@@ -20,16 +20,16 @@ local prevent_idle_timer = gears.timer({
 local function update_prevent_idle()
     if not enabled and not locked then
         prevent_idle_timer:start()
-        if not inhibitor then
-            inhibitor = dbus_.inhibit(
-                    "idle", "Disbale screen power management", "block")
-        end
+        -- if not inhibitor then
+        --     inhibitor = dbus_.inhibit(
+        --             "idle", "Disbale screen power management", "block")
+        -- end
     else
         prevent_idle_timer:stop()
-        if inhibitor then
-            dbus_.stop_inhibit(inhibitor)
-            inhibitor = nil
-        end
+        -- if inhibitor then
+        --     dbus_.stop_inhibit(inhibitor)
+        --     inhibitor = nil
+        -- end
     end
 end
 

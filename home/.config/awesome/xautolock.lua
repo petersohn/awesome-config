@@ -10,38 +10,38 @@ local disable_screensaver_commands = {"xset -dpms", "xset s off"}
 local lock_commands = {"xautolock -locknow"}
 
 local object = gears.object{}
-local slock = {}
+local xautolock = {}
 local args = {}
 
-function slock.enable()
+function xautolock.enable()
     async.run_commands(enable_commands)
 end
 
-function slock.disable()
+function xautolock.disable()
     async.run_commands(disable_commands)
 end
 
-function slock.lock()
+function xautolock.lock()
     async.run_commands(lock_commands)
 end
 
-function slock.disable_screen_out()
+function xautolock.disable_screen_out()
     async.run_commands(disable_screensaver_commands)
 end
 
-function slock._on_locked()
+function xautolock._on_locked()
     object:emit_signal("locked")
 end
 
-function slock._on_unlocked()
+function xautolock._on_unlocked()
     object:emit_signal("unlocked")
 end
 
-function slock.connect_signal(...)
+function xautolock.connect_signal(...)
     return object:connect_signal(...)
 end
 
-function slock.disconnect_signal(...)
+function xautolock.disconnect_signal(...)
     return object:disconnect_signal(...)
 end
 
@@ -76,7 +76,7 @@ local function initialize()
     return true
 end
 
-function slock.init(args_)
+function xautolock.init(args_)
     args = args_
     awful.spawn.with_shell("xset dpms 0 0 0")
     async.spawn_and_get_output("xautolock -exit", initialize)
@@ -87,4 +87,4 @@ function slock.init(args_)
 end
 
 
-return slock
+return xautolock
