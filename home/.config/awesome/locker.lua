@@ -203,6 +203,12 @@ function locker.lock(callback)
     state_machine:process_event("lock", callback)
 end
 
+local initialized = false
+
+function locker.is_initialized()
+    return initialized
+end
+
 function locker.init(backend_, args)
     backend = backend_
     backend.connect_signal("locked", function()
@@ -218,6 +224,7 @@ function locker.init(backend_, args)
         reset_state_machine()
     end)
     backend.init(args)
+    initialized = true
 end
 
 reset_state_machine()

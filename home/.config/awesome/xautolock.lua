@@ -57,11 +57,12 @@ local function initialize()
                             end)
                 else
                     async.run_command_continuously("xautolock"
-                            .. " -locker ~/.config/awesome/lock-session"
+                            .. " -locker '~/.config/awesome/lock-session "
+                            .. args.locker .. "'"
                             .. " -time " .. tostring(args.lock_time)
                             .. " -killer 'xset dpms force off'"
                             .. " -killtime " .. tostring(args.blank_time)
-                            .. " -notifier 'xset s activate'"
+                            .. " -notifier '" .. args.notifier .. "'"
                             .. " -notify " .. tostring(args.notify_time),
                             function() end,
                             function()
@@ -78,6 +79,9 @@ end
 
 function xautolock.init(args_)
     args = args_
+    if not args.notifier then
+        args.notifier = "xset dpms force off"
+    end
     awful.spawn.with_shell("xset dpms 0 0 0")
     async.spawn_and_get_output("xautolock -exit", initialize)
     awesome.connect_signal("exit",

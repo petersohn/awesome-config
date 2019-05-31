@@ -832,8 +832,11 @@ if gears.filesystem.file_readable(local_rc_file) then
 end
 
 locker.init(require("xautolock"), {
+    locker="xsecurelock --",
+    notifier="/usr/libexec/xsecurelock/until_nonidle " ..
+        "/usr/libexec/xsecurelock/dimmer",
     lock_time=15,   -- minutes
-    blank_time=10,  -- minutes
+    blank_time=30,  -- minutes
     notify_time=30  -- seconds
 })
 

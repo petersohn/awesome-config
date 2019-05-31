@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-slock awesome-client <<__EOF__
+env "$@" awesome-client <<__EOF__
 require('xautolock')._on_locked()
 __EOF__
 
