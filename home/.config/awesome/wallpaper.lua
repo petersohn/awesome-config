@@ -31,7 +31,8 @@ function wallpaper.choose_wallpaper()
 
     D.log(D.debug, "Choosing wallpapers")
     local wallpapers = {}
-    async.spawn_and_get_lines({"find", wallpapers_dir, "-type", "f"}, {
+    async.spawn_and_get_lines({"find", wallpapers_dir,
+        "-name", ".*", "-prune", "-o", "-type", "f", "-print"}, {
         line=function(line)
             table.insert(wallpapers, line)
         end,
