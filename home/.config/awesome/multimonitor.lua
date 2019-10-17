@@ -11,7 +11,9 @@ local tables = require("tables")
 local variables = require("variables")
 local xrandr = require("xrandr")
 
-local function show_screens()
+local multimonitor = {}
+
+function multimonitor.show_screens()
     for s in screen do
         local title = "Screen " .. s.index
         local text = ""
@@ -29,14 +31,15 @@ local configured_screen_layout = nil
 local saved_screen_layout = ""
 local configured_outputs_file = variables.config_dir .. "/outputs.json"
 local layout_changing = false
+local brightness = 1.0
 
-local function get_screen_name(s)
+function multimonitor.get_screen_name(s)
     return gears.table.keys(s.outputs)[1]
 end
 
-local function move_to_screen(c, s)
+function multimonitor.move_to_screen(c, s)
     D.log(D.debug, "Moving client " .. D.get_client_debug_info(c)
-        .. " to screen " .. get_screen_name(s))
+        .. " to screen " .. multimonitor.get_screen_name(s))
     local maximized = c.maximized
     c.maximized = false
     c:move_to_screen(s)
@@ -62,6 +65,20 @@ local function get_current_configuration(field)
     end
 end
 
+local function apply_brightness()
+    D.log(D.debug, "Apply brightness: " .. tostring(brightness))
+    outputs = get_current_configuration("layout").outputs
+    if outputs == nil then
+        D.log(D.warning, "No active screen layout")
+    end
+    for name, output in pairs(outputs) do
+        if output.active then
+            awful.spawn.with_shell("xrandr --output " .. name
+                .. " --brightness " .. tostring(brightness))
+        end
+    end
+end
+
 local function save_configured_outputs()
     D.log(D.debug, "Saving screen configuration to file.")
     serialize.save_to_file(configured_outputs_file, configured_outputs)
@@ -75,7 +92,7 @@ end
 
 local function set_client_configuration(client_configuration, c)
     client_configuration[tostring(c.window)] = {
-            screen=get_screen_name(c.screen),
+            screen=multimonitor.get_screen_name(c.screen),
             x=c.x, y=c.y,
             maximized=c.maximized}
 end
@@ -96,7 +113,7 @@ end
 local function get_active_screen_layout()
     local result = {}
     for s in screen do
-        local name = get_screen_name(s)
+        local name = multimonitor.get_screen_name(s)
         local g = s.geometry
         result[name] = {
             width=g.width,
@@ -183,7 +200,7 @@ end
 local function get_screens_by_name()
     local screens = {}
     for s in screen do
-        screens[get_screen_name(s)] = s
+        screens[multimonitor.get_screen_name(s)] = s
     end
     return screens
 end
@@ -214,7 +231,7 @@ local function restore_clients(clients)
                 target.screen = screens[screen_name]
             else
                 target.screen = c.screen
-                target.screen_name = get_screen_name(c.screen)
+                target.screen_name = multimonitor.get_screen_name(c.screen)
             end
             to_move[c] = target
         end
@@ -223,8 +240,8 @@ local function restore_clients(clients)
         D.log(D.debug, "Moving: " .. D.get_client_debug_info(c)
                 .. " x=" .. c.x .. "->" .. tostring(target.x)
                 .. " y=" .. c.y .. "->" .. tostring(target.y)
-                .. " screen=" .. get_screen_name(target.screen))
-        move_to_screen(c, target.screen)
+                .. " screen=" .. multimonitor.get_screen_name(target.screen))
+        multimonitor.move_to_screen(c, target.screen)
         if target.x then
             c.x = target.x
         end
@@ -272,6 +289,7 @@ local function finalize_configuration(configuration, preferred_positions)
     end
     save_screen_layout()
     layout_changing = false
+    apply_brightness()
     return true
 end
 
@@ -306,7 +324,7 @@ local function move_windows_to_screens(layout)
     end
 
     for _, c in ipairs(client.get()) do
-        local screen_name = get_screen_name(c.screen)
+        local screen_name = multimonitor.get_screen_name(c.screen)
         D.log(D.debug, D.get_client_debug_info(c)
                 .. ": x=" .. c.x .. " y=" .. c.y .. " screen=" .. screen_name)
         local current_screen = outputs[screen_name]
@@ -319,7 +337,7 @@ local function move_windows_to_screens(layout)
     local preferred_positions = {}
     for c, s in pairs(to_move) do
         D.log(D.debug, D.get_client_debug_info(c))
-        move_to_screen(c, s)
+        multimonitor.move_to_screen(c, s)
         awful.placement.no_offscreen(c)
         preferred_positions[tostring(c.window)] = {client=c,
                 x=c.x - s.geometry.x, y=c.y - s.geometry.y,
@@ -413,18 +431,18 @@ local function on_sreen_layout_detected(layout)
 
 end
 
-local function detect_screens()
+function multimonitor.detect_screens()
     D.log(D.debug, "Detect screens")
     xrandr.get_outputs(on_sreen_layout_detected)
 end
 
 local function check_screens()
     if not layout_changing then
-        detect_screens()
+        multimonitor.detect_screens()
     end
 end
 
-local function print_debug_info()
+function multimonitor.print_debug_info()
     naughty.notify({text=D.to_string_recursive(configured_outputs),
             timeout=20})
 end
@@ -462,17 +480,36 @@ local function unmanage_client(c)
     end
 end
 
-local function set_system_tray_position()
+function multimonitor.set_system_tray_position()
     local target_screen = mouse.screen
     wibox.widget.systray().set_screen(target_screen)
     local configuration = get_current_configuration(nil)
     if configuration then
         naughty.notify({text="Found configuration"})
-        configuration.system_tray_screen = get_screen_name(target_screen)
+        configuration.system_tray_screen = multimonitor.get_screen_name(target_screen)
     else
         naughty.notify({text="Found no configuration"})
     end
     save_screen_layout()
+end
+
+function multimonitor.set_brightness(value)
+    if value > 1.0 then
+        value = 1.0
+    end
+    if value < 0.0 then
+        value = 0.0
+    end
+    brightness = value
+    apply_brightness()
+end
+
+function multimonitor.increase_brightness(amount)
+    multimonitor.set_brightness(brightness + 0.1)
+end
+
+function multimonitor.decrease_brightness(amount)
+    multimonitor.set_brightness(brightness - 0.1)
 end
 
 local function cleanup_clients()
@@ -502,7 +539,7 @@ awesome.connect_signal("startup",
             client.connect_signal("property::size", move_client)
             client.connect_signal("unmanage", unmanage_client)
             cleanup_clients()
-            detect_screens()
+            multimonitor.detect_screens()
         end)
 
 if gears.filesystem.file_readable(configured_outputs_file) then
@@ -515,11 +552,4 @@ local screen_check_timer = gears.timer({
         callback=check_screens,
         single_shot=false})
 
-return {
-    detect_screens=detect_screens,
-    get_screen_name=get_screen_name,
-    move_to_screen=move_to_screen,
-    print_debug_info=print_debug_info,
-    set_system_tray_position=set_system_tray_position,
-    show_screens=show_screens,
-}
+return multimonitor
