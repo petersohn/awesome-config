@@ -372,7 +372,7 @@ local globalkeys = awful.util.table.join(root.keys(),
             function() multimonitor.increase_brightness(0.1) end,
             {description="Increase brightness", group="screen"}),
     awful.key({ }, "XF86MonBrightnessDown",
-            function() multimonitor.decrease_brightness(0.1) end,
+            function() multimonitor.increase_brightness(-0.1) end,
             {description="Decrease brightness", group="screen"}),
 
     -- Prompt

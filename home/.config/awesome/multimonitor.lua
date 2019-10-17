@@ -31,7 +31,6 @@ local configured_screen_layout = nil
 local saved_screen_layout = ""
 local configured_outputs_file = variables.config_dir .. "/outputs.json"
 local layout_changing = false
-local brightness = 1.0
 
 function multimonitor.get_screen_name(s)
     return gears.table.keys(s.outputs)[1]
@@ -67,14 +66,18 @@ end
 
 local function apply_brightness()
     D.log(D.debug, "Apply brightness: " .. tostring(brightness))
-    outputs = get_current_configuration("layout").outputs
+    layout = get_current_configuration("layout")
+    outputs = layout.outputs
     if outputs == nil then
         D.log(D.warning, "No active screen layout")
+    end
+    if layout.brightness == nil then
+        layout.brightness = 1.0
     end
     for name, output in pairs(outputs) do
         if output.active then
             awful.spawn.with_shell("xrandr --output " .. name
-                .. " --brightness " .. tostring(brightness))
+                .. " --brightness " .. tostring(layout.brightness))
         end
     end
 end
@@ -287,9 +290,9 @@ local function finalize_configuration(configuration, preferred_positions)
         wibox.widget.systray().set_screen("primary")
         D.log(D.info, "Moving system tray to primary screen")
     end
+    apply_brightness()
     save_screen_layout()
     layout_changing = false
-    apply_brightness()
     return true
 end
 
@@ -500,16 +503,16 @@ function multimonitor.set_brightness(value)
     if value < 0.0 then
         value = 0.0
     end
-    brightness = value
+    layout = get_current_configuration("layout")
+    layout.brightness = value
     apply_brightness()
+    save_screen_layout()
 end
 
 function multimonitor.increase_brightness(amount)
-    multimonitor.set_brightness(brightness + 0.1)
-end
-
-function multimonitor.decrease_brightness(amount)
-    multimonitor.set_brightness(brightness - 0.1)
+    layout = get_current_configuration("layout")
+    current = tables.get(layout, "brightness", 1.0)
+    multimonitor.set_brightness(current + amount)
 end
 
 local function cleanup_clients()
