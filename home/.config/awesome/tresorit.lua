@@ -14,7 +14,7 @@ local tresorit_command = command.get_available_command({
     {command="tresorit-cli", test="tresorit-cli status"}
 })
 
-local function on_command_finished(command, result, callback)
+local function on_command_finished(user, command, result, callback)
     local error_code = nil
     local description = nil
     local error_string = nil
@@ -33,11 +33,12 @@ local function on_command_finished(command, result, callback)
         D.log(D.debug, error_string)
     end
     if callback then
-        callback(result.lines, error_string)
+        D.log(D.debug, "callig callback")
+        callback(user, result.lines, error_string)
     end
 end
 
-local function call_tresorit_cli(command, callback, error_handler)
+local function call_tresorit_cli(user, command, callback, error_handler)
     local result = {lines={}, has_error=nil, result_code=nil, stderr=nil}
     local on_done = function()
         if result.has_error ~= nil and result.result_code ~= nil then
@@ -47,9 +48,14 @@ local function call_tresorit_cli(command, callback, error_handler)
         end
     end
 
-    D.log(D.debug, "Call tresorit-cli " .. command)
+    local user_arg = ""
+    if user ~= nil then
+        user_arg = "--user " .. user .. " "
+    end
+
+    D.log(D.debug, "Call tresorit-cli " .. user_arg .. command)
     local spawn_result = async.spawn_and_get_lines(
-            tresorit_command .. " --porcelain " .. command, {
+            tresorit_command .. " --porcelain " .. user_arg .. command, {
         line=function(line)
             table.insert(result.lines, gears.string.split(line, "\t"))
         end,
@@ -61,7 +67,9 @@ local function call_tresorit_cli(command, callback, error_handler)
         end,
         done=function()
             local res, err = xpcall(
-                function() on_command_finished(command, result, callback) end,
+                function()
+                    on_command_finished(user, command, result, callback)
+                end,
                 debug.traceback)
             if not res then
                 local handled = nil
@@ -83,9 +91,9 @@ end
 local menu_widget = awful.widget.launcher{
     image=variables.config_dir .. "/tresorit.png",
     menu=awful.menu{items={
-        {"Start", function() call_tresorit_cli("start") end},
-        {"Stop", function() call_tresorit_cli("stop") end},
-        {"Logout", function() call_tresorit_cli("logout") end},
+        {"Start", function() call_tresorit_cli(nil, "start") end},
+        {"Stop", function() call_tresorit_cli(nil, "stop") end},
+        -- {"Logout", function() call_tresorit_cli("logout") end},
         {"Open GUI", function() awful.spawn("tresorit") end},
     }}
 }
@@ -167,28 +175,12 @@ end
 local backoff_timeout = 10
 
 
-local function commit(err)
-    if err then
-        tooltip.text = err
-        error_widget.visible = true
-        D.notify_error{title='Tresorit error', text=err}
-        D.log(D.debug, "Retrying tresorit in "
-            .. tostring(backoff_timeout) .. " seconds.")
-        gears.timer.start_new(backoff_timeout, function()
-            timer:start()
-        end)
-        backoff_timeout = backoff_timeout * 2
-        if backoff_timeout > 600 then
-            backoff_timeout = 600
-        end
-        return true
-    end
-    backoff_timeout = 10
-    timer:start()
-    tooltip.text = tooltip_text
-end
+local users_to_go = {}
 
-local function on_files(result, error_string)
+
+local commit = nil
+
+local function on_files(user, result, error_string)
     if error_string then
         append_tooltip_text("\n" .. error_string)
         sync_error_widget.visible = true
@@ -213,7 +205,7 @@ local function on_files(result, error_string)
     commit()
 end
 
-local function on_transfers(result, error_string)
+local function on_transfers(user, result, error_string)
     if error_string then
         append_tooltip_text("\n" .. error_string)
         sync_error_widget.visible = true
@@ -252,18 +244,19 @@ local function on_transfers(result, error_string)
         (has_tresor_error or has_file_error)
     append_tooltip_text(status_text)
     if has_sync or has_file_error then
-        call_tresorit_cli("transfers --files", on_files, commit)
+        call_tresorit_cli(user, "transfers --files", on_files, commit)
     else
         commit()
     end
 end
 
-local function on_status(result, error_string)
+local function on_status(user_, result, error_string)
     local running = false
     local logged_in = false
     local error_code = nil
     local description = nil
-    local restriction_state = nil
+    local restriction_state = {}
+    local users = {}
     if error_string then
         set_tooltip_text(error_string)
     else
@@ -273,10 +266,12 @@ local function on_status(result, error_string)
                 running = line[2] == "running"
             elseif line[1] == "Logged in as:" then
                 logged_in = line[2] ~= "-"
-                set_tooltip_text(line[2])
+                if logged_in then
+                    users = gears.string.split(line[2], ", ")
+                end
             elseif line[1] == "Restriction state:" then
-                if line[2] ~= "-" and line[2] ~= "Normal" then
-                    restriction_state = line[2]
+                if line[2] ~= "-" then
+                    restriction_state = gears.string.split(line[2], ", ")
                 end
             end
         end
@@ -287,20 +282,57 @@ local function on_status(result, error_string)
     stopped_widget.visible = not error_string and not running
     logout_widget.visible = running and not logged_in
     error_widget.visible = error_string ~= nil
-    restricted_widget.visible = restriction_state ~= nil
 
-    if logged_in and not restriction_state then
-        call_tresorit_cli("transfers", on_transfers, commit)
-    else
-        if restriction_state then
-            append_tooltip_text('\n' .. restriction_state)
+    local has_restriction = false
+    users_to_go = {}
+    if logged_in then
+        for i, user in ipairs(users) do
+            append_tooltip_text(user .. "\n")
+            if restriction_state[i] ~= nil and
+                    restriction_state[i] ~= "Normal" then
+                append_tooltip_text(restriction_state[i] .. "\n")
+                has_restriction = true
+            else
+                users_to_go[i] = user
+            end
         end
+        commit()
+    else
         sync_widget.visible = false
         sync_indexing_widget.visible = false
         sync_error_widget.visible = false
         commit()
     end
+    restricted_widget.visible = has_restriction
 end
+
+commit = function(err)
+    if err then
+        tooltip.text = err
+        error_widget.visible = true
+        D.notify_error{title='Tresorit error', text=err}
+        D.log(D.debug, "Retrying tresorit in "
+            .. tostring(backoff_timeout) .. " seconds.")
+        gears.timer.start_new(backoff_timeout, function()
+            timer:start()
+        end)
+        backoff_timeout = backoff_timeout * 2
+        if backoff_timeout > 600 then
+            backoff_timeout = 600
+        end
+        return true
+    end
+    for i, user in pairs(users_to_go) do
+        users_to_go[i] = nil
+        call_tresorit_cli(user, "transfers", on_transfers, commit)
+        return false
+    end
+    backoff_timeout = 10
+    timer:start()
+    tooltip.text = tooltip_text
+    return false
+end
+
 
 local last_call
 
@@ -313,10 +345,10 @@ if tresorit_command ~= nil then
         autostart=true,
         callback=function()
             last_call = os.time()
-            call_tresorit_cli("status", on_status, commit)
+            call_tresorit_cli(nil, "status", on_status, commit)
         end}
 
-    call_tresorit_cli("start")
+    call_tresorit_cli(nil, "start")
 
     gears.timer.start_new(60, function()
         local now = os.time()
