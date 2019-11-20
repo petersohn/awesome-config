@@ -26,6 +26,7 @@ variables.screenshot_tool = command.get_available_command({
     {command="spectacle"},
     })
 variables.password_manager = command.get_available_command({
+    {command="keepassxc"},
     {command="keepass2", test="which keepass2"},
     {command="keepass", test="which keepass"},
     })
