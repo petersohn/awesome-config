@@ -310,7 +310,7 @@ commit = function(err)
     if err then
         tooltip.text = err
         error_widget.visible = true
-        D.notify_error{title='Tresorit error', text=err}
+        D.log(D.error, "Tresorit error: " .. err)
         D.log(D.debug, "Retrying tresorit in "
             .. tostring(backoff_timeout) .. " seconds.")
         gears.timer.start_new(backoff_timeout, function()
