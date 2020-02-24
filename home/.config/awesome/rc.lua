@@ -412,6 +412,13 @@ local globalkeys = awful.util.table.join(root.keys(),
                     last_started_client:raise()
                 end
             end,
+            {description="focus last started client", group="client"}),
+    awful.key({modkey}, "F6",
+            function()
+                for _, c in pairs(client.get()) do
+                    c.sticky = false
+                end
+            end,
             {description="focus last started client", group="client"})
 )
 
