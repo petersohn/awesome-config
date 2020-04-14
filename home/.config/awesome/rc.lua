@@ -55,6 +55,7 @@ local multimonitor = require("multimonitor")
 local variables = require("variables")
 local command = require("command")
 local compton = require("compton")
+local async = require("async")
 local widgets = require("widgets")
 local cyclefocus = require('cyclefocus')
 local input = require('input')
@@ -63,6 +64,7 @@ local pulseaudio = require("apw/pulseaudio")
 require("safe_restart")
 local lgi = require("lgi")
 local power = require("power")
+local rex = require("rex_pcre")
 local wallpaper = require("wallpaper")
 local tresorit = require("tresorit")
 
@@ -854,6 +856,63 @@ naughty.config.notify_callback = function(args)
         args.icon_size = 64
     end
     return args
+end
+
+local battery_info = {}
+local acpi_command = command.get_available_command({{
+    command="acpi",
+    test="acpi",
+}})
+D.log(D.info, "ACPI=" .. tostring(acpi_command))
+local battery_timer = nil
+
+if not acpi_command then
+    D.log(D.warning, "ACPI is not supported.")
+else
+    battery_timer = gears.timer({
+        timeout=60,
+        autostart=true,
+        call_now=true,
+        callback=function()
+            async.spawn_and_get_lines(acpi_command, {
+                line=function(line)
+                    local name, status, level = rex.match(line,
+                        "^([^:]+): (\\w+), (\\d+)%")
+                    if not name then
+                        D.log(D.debug, "Bad battery info: " .. line)
+                        return
+                    end
+                    D.log(D.debug, "Battery info: " .. name .. ", " ..
+                        status .. ", " .. level .. "%")
+                    local prev_level = nil
+                    if not battery_info[name] then
+                        D.log(D.info, "Found battery: " .. name)
+                        prev_level = 0
+                    else
+                        prev_level = battery_info[name].level
+                    end
+                    local new_level = tonumber(level)
+                    local preset = nil
+                    if prev_level > 50 and new_level <= 50 then
+                        preset = naughty.config.presets.info
+                    elseif prev_level > 25 and new_level <= 25 then
+                        preset = naughty.config.presets.warn
+                    elseif prev_level > 10 and new_level <= 10 then
+                        preset = naughty.config.presets.critical
+                    end
+                    if preset then
+                        naughty.notify{
+                            title=name,
+                            text="Battery level: " .. level,
+                            preset=preset,
+                        }
+                    end
+                    battery_info[name] = {
+                        level=new_level,
+                    }
+                end})
+        end,
+    })
 end
 
 D.log(D.info, "Initialization finished")

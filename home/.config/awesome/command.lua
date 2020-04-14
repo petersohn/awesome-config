@@ -44,6 +44,7 @@ function command.get_available_command(commands)
         end
         if os.execute(test) then
             return command_base .. args
+        else
         end
     end
     return nil
