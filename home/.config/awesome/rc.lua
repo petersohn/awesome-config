@@ -893,12 +893,12 @@ else
                     end
                     local new_level = tonumber(level)
                     local preset = nil
-                    if prev_level > 50 and new_level <= 50 then
-                        preset = naughty.config.presets.info
+                    if prev_level > 10 and new_level <= 10 then
+                        preset = naughty.config.presets.critical
                     elseif prev_level > 25 and new_level <= 25 then
                         preset = naughty.config.presets.warn
-                    elseif prev_level > 10 and new_level <= 10 then
-                        preset = naughty.config.presets.critical
+                    elseif prev_level > 50 and new_level <= 50 then
+                        preset = naughty.config.presets.info
                     end
                     if preset then
                         naughty.notify{
