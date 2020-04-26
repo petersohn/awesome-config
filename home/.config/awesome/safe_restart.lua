@@ -25,7 +25,6 @@ local function manage_client(c)
         client_data.height = c.height
         client_data.y = c.y
     end
-    D.log(D.debug, "CCCCCCC " .. tostring(c.window) .. " " .. c.class .. " " .. tostring(c.minimized))
     client_data.minimized = c.minimized
     serialize.save_to_file(persist_file, persist_data)
 end
