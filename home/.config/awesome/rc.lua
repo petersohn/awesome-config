@@ -892,6 +892,11 @@ else
                         prev_level = battery_info[name].level
                     end
                     local new_level = tonumber(level)
+                    if prev_level ~= new_level then
+                        D.log(D.info,
+                            "Battery level changed: " .. name
+                            .. ": " .. level)
+                    end
                     local preset = nil
                     if prev_level > 10 and new_level <= 10 then
                         preset = naughty.config.presets.critical
