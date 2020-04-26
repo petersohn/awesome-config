@@ -25,6 +25,8 @@ local function manage_client(c)
         client_data.height = c.height
         client_data.y = c.y
     end
+    D.log(D.debug, "CCCCCCC " .. tostring(c.window) .. " " .. c.class .. " " .. tostring(c.minimized))
+    client_data.minimized = c.minimized
     serialize.save_to_file(persist_file, persist_data)
 end
 
@@ -48,10 +50,14 @@ local function restore_client_data(c, data)
     if data.y then
         c.y = data.y
     end
-
     c.maximized = maximized
     c.maximized_horizontal = maximized_horizontal
     c.maximized_vertical = maximized_vertical
+
+    if data.minimized ~= nil then
+        local m = data.minimized
+        gears.timer.start_new(0, function() c.minimized = m end)
+    end
 end
 
 client.connect_signal("manage", manage_client)
@@ -60,6 +66,7 @@ client.connect_signal("property::position", manage_client)
 client.connect_signal("property::maximized", manage_client)
 client.connect_signal("property::maximized_horizontal", manage_client)
 client.connect_signal("property::maximized_vertical", manage_client)
+client.connect_signal("property::minimized", manage_client)
 
 client.connect_signal("unmanage",
         function(c)
