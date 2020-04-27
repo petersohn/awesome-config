@@ -37,17 +37,14 @@ function shutdown.clean_shutdown(message, timeout, callback)
     end
 
     client.connect_signal('unmanage', unmanage_client)
+
     local notification = naughty.notify({
         title=message,
         text=get_message(timeout),
         timeout=0,
         actions={
-            force=function()
-                finish(true)
-            end,
-            cancel=function()
-                finish(false)
-            end
+            force=function() finish(true) end,
+            cancel=function() finish(false) end
         },
         run=function() end
     })
@@ -75,7 +72,7 @@ function shutdown.clean_shutdown(message, timeout, callback)
             timer:stop()
         end
         naughty.destroy(notification,
-                naughty.notificationClosedReason.dismissedByCommand)
+            naughty.notificationClosedReason.dismissedByCommand)
         if success then
             D.log(D.info, 'Shutdown finished.')
             callback()

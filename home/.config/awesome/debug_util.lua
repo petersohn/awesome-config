@@ -101,6 +101,7 @@ function D.notify_error(args)
             local stream = io.popen("xsel --input --clipboard", "w")
             stream:write(tostring(args.text))
             stream:close()
+            error_notification = nil
         end
     end
 

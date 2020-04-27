@@ -48,17 +48,22 @@ function power.quit()
     shutdown.clean_shutdown('Quit awesome', 30, awesome.quit)
 end
 
+local power_menu_notification = nil
+
 function power.power_menu()
-    local notification = nil
+    if power_menu_notification then
+        return
+    end
+
     local function call(f)
         return function()
-            naughty.destroy(notification,
+            naughty.destroy(power_menu_notification,
                 naughty.notificationClosedReason.dismissedByCommand)
             f()
         end
     end
 
-    notification = naughty.notify({
+    power_menu_notification = naughty.notify({
         title='Power',
         text='Choose action to take.',
         timeout=30,
@@ -67,9 +72,12 @@ function power.power_menu()
             suspend=call(power.suspend),
             hibernate=call(power.hibernate),
             reboot=call(power.reboot),
-            ['quit awesome']=call(power.quit),
+            logout=call(power.quit),
             cancel=call(function() end),
-        }
+        },
+        destroy = function()
+            power_menu_notification = nil
+        end,
     })
 end
 
