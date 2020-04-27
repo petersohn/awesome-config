@@ -8,7 +8,6 @@ local gears = require("gears")
 local function __to_string_recursive(object, depth, index, found)
     if type(object) == "table" then
         local id = tostring(depth) .. "." .. tostring(index)
-        print(found[object])
         if found[object] then
             return "<" .. found[object] .. ">"
         end
@@ -90,21 +89,30 @@ function D.log(severity, message)
     awful.spawn.with_shell(cleanup_script .. " " .. log_file_name .. " 10000")
 end
 
+local error_notification = nil
+
 function D.notify_error(args)
     D.log(D.error, args.text)
     if not args.preset then
         args.preset = naughty.config.presets.critical
     end
     args.destroy = function(reason)
-        if reason == naughty.notificationClosedReason.
-                dismissedByUser then
+        if reason == naughty.notificationClosedReason.dismissedByUser then
             local stream = io.popen("xsel --input --clipboard", "w")
             stream:write(tostring(args.text))
             stream:close()
         end
     end
 
-    naughty.notify(args)
+    if not args.important then
+        if error_notification then
+            naughty.destroy(error_notification,
+                naughty.notificationClosedReason.dismissedByCommand)
+        end
+        error_notification = naughty.notify(args)
+    else
+        naughty.notify(args)
+    end
 end
 
 return D

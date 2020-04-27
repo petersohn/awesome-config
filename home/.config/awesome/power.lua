@@ -15,7 +15,6 @@ local function call_power_command(name)
         awful.spawn.with_shell(command)
     else
         local message = "No command found for " .. name
-        D.log(D.error, message)
         D.notify_error({text=message})
     end
 end
@@ -54,7 +53,7 @@ function power.power_menu()
     local function call(f)
         return function()
             naughty.destroy(notification,
-                    naughty.notificationClosedReason.dismissedByUser)
+                naughty.notificationClosedReason.dismissedByCommand)
             f()
         end
     end
