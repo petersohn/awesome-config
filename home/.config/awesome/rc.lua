@@ -889,20 +889,18 @@ else
                         prev_level = battery_info[name].level
                     end
                     local new_level = tonumber(level)
-                    if prev_level ~= new_level then
-                        D.log(D.info,
-                            "Battery level changed: " .. name
-                            .. ": " .. level)
-                    end
                     local preset = nil
                     if prev_level > 10 and new_level <= 10 then
                         preset = naughty.config.presets.critical
-                    elseif prev_level > 25 and new_level <= 25 then
+                    elseif prev_level > 30 and new_level <= 30 then
                         preset = naughty.config.presets.warn
                     elseif prev_level > 50 and new_level <= 50 then
                         preset = naughty.config.presets.info
                     end
                     if preset then
+                        D.log(D.info,
+                            "Battery level changed: " .. name
+                            .. ": " .. level)
                         naughty.notify{
                             title=name,
                             text="Battery level: " .. level,
