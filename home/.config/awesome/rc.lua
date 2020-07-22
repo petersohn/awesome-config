@@ -814,6 +814,7 @@ client.connect_signal("property::position", check_fullscreen)
 awesome.connect_signal("startup",
         function()
             command.start_if_not_running(variables.clipboard_manager, "")
+            command.start_if_not_running(variables.bluetooth_manager, "")
         end)
 
 

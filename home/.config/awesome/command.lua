@@ -5,6 +5,9 @@ local D = require("debug_util")
 local command = {}
 
 function command.start_if_not_running(command, args, path)
+    if command == nil then
+        return
+    end
     D.log(D.info, 'Starting ' .. command)
     async.spawn_and_get_output("pidof -x " .. command,
             function(stdout, result_code)
@@ -42,7 +45,7 @@ function command.get_available_command(commands)
             end
             test = command_base .. test_args
         end
-        if os.execute(test) then
+        if os.execute(test) == 0 then
             return command_base .. args
         else
         end

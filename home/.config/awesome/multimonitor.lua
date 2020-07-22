@@ -148,15 +148,13 @@ end
 
 local function is_layout_equal_(layout1, layout2)
     for name, settings1 in pairs(layout1) do
-        if not settings1.active then
-            goto continue
+        if settings1.active then
+            local settings2 = layout2[name]
+            if not settings2 or not settings2.active
+                    or not is_screen_equal(settings1, settings2) then
+                return false
+            end
         end
-        local settings2 = layout2[name]
-        if not settings2 or not settings2.active
-                or not is_screen_equal(settings1, settings2) then
-            return false
-        end
-        ::continue::
     end
 
     return true
