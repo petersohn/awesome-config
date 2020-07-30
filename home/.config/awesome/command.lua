@@ -45,7 +45,9 @@ function command.get_available_command(commands)
             end
             test = command_base .. test_args
         end
-        if os.execute(test) == 0 then
+        res = os.execute(test)
+        D.log(D.debug, test .. " --> " .. tostring(res))
+        if res then
             return command_base .. args
         else
         end

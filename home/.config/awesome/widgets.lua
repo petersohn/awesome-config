@@ -30,6 +30,8 @@ local function client_menu_toggle_fn()
                             "Minimize", "Restore"),
                     property_toggler_menu_item(c, "maximized",
                             "Maximize", "Unmaximize"),
+                    property_toggler_menu_item(c, "ontop",
+                            "On Top", "Remove On Top"),
                     {"Close", function() c:kill() end},
             })
             instance:show()
