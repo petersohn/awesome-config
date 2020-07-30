@@ -46,8 +46,8 @@ function command.get_available_command(commands)
             test = command_base .. test_args
         end
         res = os.execute(test)
-        D.log(D.debug, test .. " --> " .. tostring(res))
-        if res then
+        -- Different Lua versions return different results
+        if res == true or res == 0 then
             return command_base .. args
         else
         end
