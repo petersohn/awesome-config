@@ -45,7 +45,7 @@ function command.get_available_command(commands)
             end
             test = command_base .. test_args
         end
-        res = os.execute(test)
+        res = os.execute('timeout 1 ' .. test)
         -- Different Lua versions return different results
         if res == true or res == 0 then
             return command_base .. args

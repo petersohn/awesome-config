@@ -159,6 +159,7 @@ gears.timer.start_new(1, function()
                     result.recording_applications .. value
             end
         end,
+        exit=function() return true end,
         done=function()
             if record_widget.tooltip.text ~= result.recording_applications then
                 record_widget.tooltip.text = result.recording_applications
