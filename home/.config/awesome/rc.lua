@@ -128,6 +128,46 @@ else
     local_widgets = {}
 end
 
+local record_widget = wibox.widget{
+    image=variables.config_dir .. "/media-record.svg",
+    resize=true,
+    widget=wibox.widget.imagebox,
+    visible=false,
+}
+record_widget.tooltip = awful.tooltip{objects={record_widget}}
+
+gears.timer.start_new(1, function()
+    local result = {recording_applications=''}
+    async.spawn_and_get_lines("pacmd list-source-outputs", {
+        line=function(line)
+            number = rex.match(line, "^(\\d+) source")
+            if number then
+                local visible = number ~= "0"
+                if record_widget.visible ~= visible then
+                    record_widget.visible = visible
+                end
+                return
+            end
+
+            key, value = rex.match(line, '^\\s*([A-Za-z0-9.]+) = "(.*)"$')
+            if key == "application.name" then
+                if result.recording_applications ~= '' then
+                    result.recording_applications =
+                        result.recording_applications .. '\n'
+                end
+                result.recording_applications =
+                    result.recording_applications .. value
+            end
+        end,
+        done=function()
+            if record_widget.tooltip.text ~= result.recording_applications then
+                record_widget.tooltip.text = result.recording_applications
+            end
+        end
+    })
+    return true
+end)
+
 awful.screen.connect_for_each_screen(function(s)
     D.log(D.debug, "Got screen: " .. multimonitor.get_screen_name(s))
     -- Wallpaper
@@ -177,6 +217,7 @@ awful.screen.connect_for_each_screen(function(s)
         gears.table.join(
             { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
+                record_widget,
                 widgets.keyboard_layout_switcher.widget,
                 APW,
                 widgets.systray_widget,
