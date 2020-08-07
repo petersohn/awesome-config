@@ -84,7 +84,9 @@ end
 awesome.connect_signal("startup",
     function()
         local systemctl_command = command.get_available_command({
-            {command="systemctl"}})
+            {command="systemctl"},
+            {command="loginctl"},
+        })
         if systemctl_command then
             commands = {
                 suspend=systemctl_command .. " suspend",
