@@ -75,19 +75,19 @@ menubar.utils.terminal = variables.terminal -- Set the terminal for applications
 -- Create a textclock widget
 local text_clock = wibox.widget.textclock()
 
-local calendar_widget = awful.widget.calendar_popup.month{
-    bg="black",
-    style_focus={bg_color="blue"}
-}
+-- local calendar_widget = awful.widget.calendar_popup.month{
+--     bg="black",
+--     style_focus={bg_color="blue"}
+-- }
 
-text_clock:buttons(awful.util.table.join(
-        awful.button({}, 1,
-        function()
-            if not calendar_widget.visible then
-                calendar_widget:call_calendar(0, "br", mouse.screen)
-            end
-            calendar_widget.visible = not calendar_widget.visible
-        end)))
+-- text_clock:buttons(awful.util.table.join(
+--         awful.button({}, 1,
+--         function()
+--             if not calendar_widget.visible then
+--                 calendar_widget:call_calendar(0, "br", mouse.screen)
+--             end
+--             calendar_widget.visible = not calendar_widget.visible
+--         end)))
 
 local systray_widget = wibox.widget.systray()
 
@@ -136,7 +136,7 @@ local tasklist_buttons = awful.util.table.join(
 local keyboard_layout_switcher = {}
 
 local function set_keyboard_layout_text(layout)
-    keyboard_layout_switcher.widget:set_text(" 🖮 " .. layout[3] .. " ")
+    keyboard_layout_switcher.widget:set_text(" ⌨ " .. layout[3] .. " ")
 end
 
 keyboard_layout_switcher.cmd = "setxkbmap"
