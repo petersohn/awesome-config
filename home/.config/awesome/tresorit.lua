@@ -10,6 +10,10 @@ local variables = require("variables_base")
 
 local tresorit = {}
 
+D.log(D.info, os.getenv("PATH"))
+D.log(D.info, os.getenv("HOME"))
+D.log(D.info, os.getenv("LUA_PATH"))
+
 local tresorit_command = command.get_available_command({
     {command="tresorit-cli", test="tresorit-cli status"}
 })
@@ -337,7 +341,7 @@ end
 local last_call
 
 if tresorit_command ~= nil then
-    D.log(D.debug, "Has tresorit-cli")
+    D.log(D.info, "Has tresorit-cli")
     timer = gears.timer{
         timeout=2,
         single_shot=true,
@@ -360,7 +364,7 @@ if tresorit_command ~= nil then
         return true
     end)
 else
-    D.log(D.debug, "No tresorit-cli")
+    D.log(D.info, "No tresorit-cli")
 end
 
 return tresorit
