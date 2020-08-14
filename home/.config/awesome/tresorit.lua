@@ -10,10 +10,6 @@ local variables = require("variables_base")
 
 local tresorit = {}
 
-D.log(D.info, os.getenv("PATH"))
-D.log(D.info, os.getenv("HOME"))
-D.log(D.info, os.getenv("LUA_PATH"))
-
 local tresorit_command = command.get_available_command({
     {command="tresorit-cli", test="tresorit-cli status"}
 })
