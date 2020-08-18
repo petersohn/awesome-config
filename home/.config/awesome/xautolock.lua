@@ -50,6 +50,7 @@ local function initialize()
             function(pid_)
                 local pid = tonumber(pid_)
                 if pid then
+                    D.log(D.debug('xautolock is still running'))
                     gears.timer.start_new(0.5,
                             function()
                                 initialize()
