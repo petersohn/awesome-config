@@ -25,7 +25,7 @@ local function reset_state_machine()
         actions=actions,
         states={
             Start={
-                enter="stop_timer",
+                enter={"stop_timer", "disable_screen_out"},
             },
             Enabled={
             },
