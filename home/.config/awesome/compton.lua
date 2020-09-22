@@ -5,7 +5,7 @@ local command = require("command")
 local D = require("debug_util")
 local Process = require("Process")
 
-local enabled = true
+local enabled = not os.getenv("DISABLE_COMPTON")
 local transparency_enabled = true
 local opacity = 0.85
 
@@ -110,8 +110,8 @@ end
 
 awesome.connect_signal("startup",
     function()
+        awful.spawn.with_shell("killall compton")
         if enabled then
-            awful.spawn.with_shell("killall compton")
             start()
         end
     end)
