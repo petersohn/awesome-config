@@ -134,6 +134,7 @@ local record_widget = wibox.widget{
     widget=wibox.widget.imagebox,
     visible=false,
 }
+
 record_widget.tooltip = awful.tooltip{objects={record_widget}}
 
 gears.timer.start_new(1, function()
@@ -951,6 +952,9 @@ else
                             text="Battery level: " .. level,
                             preset=preset,
                         }
+                        awful.spawn.with_shell(
+                            variables.sound_player .. " "
+                            .. variables.config_dir .. "/notification1.mp3")
                     end
                     battery_info[name] = {
                         level=new_level,

@@ -33,6 +33,9 @@ variables.password_manager = command.get_available_command({
 variables.bluetooth_manager = command.get_available_command({
         {command="blueman-applet"},
     })
+variables.sound_player = command.get_available_command({
+        {command="mplayer", args="--really-quiet"},
+    })
 
 variables.editor_cmd = variables.terminal .. " -e " .. variables.editor
 
