@@ -23,7 +23,7 @@ local function do_call(self, action, arg)
         return
     end
 
-    log(self, D.debug, "Executing action: " .. action)
+    log(self, self.severity, "Executing action: " .. action)
     return self.actions[action](arg)
 end
 
@@ -39,7 +39,7 @@ end
 
 function enter_state(self, state, arg)
     if state then
-        log(self, D.debug, "Entering state: " .. state)
+        log(self, self.severity, "Entering state: " .. state)
         self.state = state
         if self.states[state] and self.states[state].enter then
             call(self, self.states[state].enter, {
@@ -59,7 +59,7 @@ function leave_state(self, arg)
                 state_machine=self,
                 arg=arg})
         end
-        log(self, D.debug, "Leaving state: " .. self.state)
+        log(self, self.severity, "Leaving state: " .. self.state)
         self.state = nil
     end
 end
@@ -110,6 +110,12 @@ function StateMachine.new(args)
     self.transitions = tables.get(args, "transitions")
     self.actions = args.actions
     self.name = args.name
+    if args.severity == nil then
+        self.severity = D.debug
+    else
+        self.severity = args.severity
+    end
+
 
     initial_state = tables.get(args, "initial", "")
     enter_state(self, initial_state)
@@ -130,7 +136,8 @@ function StateMachine:process_event(event, arg)
         return
     end
 
-    log(self, D.debug, "Processing event: " .. self.state .. " -> " .. event)
+    log(self, self.severity,
+        "Processing event: " .. self.state .. " -> " .. event)
 
     transition = self.transitions[self.state][event]
 
