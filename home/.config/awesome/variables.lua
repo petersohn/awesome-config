@@ -4,6 +4,7 @@ local variables = require("variables_base")
 
 -- This is used later as the default terminal and editor to run.
 variables.terminal = command.get_available_command({
+        {command="kitty"},
         {command="gnome-terminal"},
         {command="x-terminal-emulator"},
         {command="terminator"},
