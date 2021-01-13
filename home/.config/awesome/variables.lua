@@ -37,6 +37,9 @@ variables.bluetooth_manager = command.get_available_command({
 variables.sound_player = command.get_available_command({
         {command="mplayer", args="--really-quiet", test="mplayer"},
     })
+variables.nvidia_settings = command.get_available_command({
+        {command="nvidia-settings"},
+    })
 
 variables.editor_cmd = variables.terminal .. " -e " .. variables.editor
 

@@ -827,11 +827,11 @@ client.connect_signal("unmanage",
 
 local fullscreen_idle_prevention = false
 
-local function has_visible_fullscreen_client()
+local function has_client_with(func)
     for s in screen do
         for _, t in ipairs(s.selected_tags) do
             for _, c in ipairs(t:clients()) do
-                if c.valid and c.fullscreen then
+                if c.valid and func(c) then
                     return true
                 end
             end
@@ -841,7 +841,8 @@ local function has_visible_fullscreen_client()
 end
 
 local function check_fullscreen()
-    local has_fullscreen = has_visible_fullscreen_client()
+    local has_fullscreen = has_client_with(
+        function(c) return c.fullscreen end)
     if has_fullscreen and not fullscreen_idle_prevention then
         locker.prevent_idle:lock()
         fullscreen_idle_prevention = true
@@ -862,6 +863,30 @@ awesome.connect_signal("startup",
             command.start_if_not_running(variables.bluetooth_manager, "")
         end)
 
+local had_zoom = nil
+
+local function check_zoom()
+    local has_zoom = has_client_with(
+        function(c) return c.class == 'zoom' end)
+    if had_zoom ~= has_zoom then
+        if has_zoom then
+            name = 'disable'
+            value = '0'
+        else
+            name = 'enable'
+            value = '1'
+        end
+        D.log(D.info, 'Zoom status changed, ' .. name .. ' flipping')
+        awful.spawn.with_shell(variables.nvidia_settings .. ' -a AllowFlipping='
+            .. value)
+        had_zoom = has_zoom
+    end
+end
+
+if variables.nvidia_settings ~= nil then
+    client.connect_signal("manage", check_zoom)
+    client.connect_signal("unmanage", check_zoom)
+end
 
 -- }}}
 
