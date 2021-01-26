@@ -20,6 +20,7 @@ setmetatable(Process, {
 
 local timer_names = {"ok", "stop", "restart"}
 
+local objects = {}
 local active_names = {}
 local running_pids = {}
 
@@ -30,6 +31,9 @@ local function check_name(name)
 end
 
 function Process.new(name, command)
+    if objects[name] then
+        error(name .. " already exists")
+    end
     check_name(name)
     local self = setmetatable(gears.object{}, Process)
     self.command = command
@@ -228,6 +232,7 @@ function Process.new(name, command)
             end
         end)
 
+    objects[name] = self
     return self
 end
 
@@ -249,6 +254,10 @@ end
 
 function Process:is_running()
     return self.state_machine.states[self.state_machine.state].running
+end
+
+function Process.get(name)
+    return objects[name]
 end
 
 local running_pids_file = variables.config_dir .. "/running_pids.json"
