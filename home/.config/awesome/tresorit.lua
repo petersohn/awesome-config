@@ -239,7 +239,7 @@ local function on_transfers(user, result, error_string)
     end
 
     sync_widget.visible = has_sync
-    sync_indexing_widget.visible = is_indexing
+    sync_indexing_widget.visible = not has_sync and is_indexing
     sync_error_widget.visible = not has_sync and
         (has_tresor_error or has_file_error)
     append_tooltip_text(status_text)
