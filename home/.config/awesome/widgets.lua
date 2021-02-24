@@ -62,6 +62,7 @@ local main_menu = awful.menu({
     items = {
         {"awesome", awesome_menu, beautiful.awesome_icon},
         {"open terminal", variables.terminal},
+        {"run command", function () awful.screen.focused().mypromptbox:run() end},
         {"power", power_menu},
     }})
 
