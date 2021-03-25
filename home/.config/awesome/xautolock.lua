@@ -1,5 +1,6 @@
 local awful = require("awful")
 local gears = require("gears")
+local D = require("debug_util")
 
 local async = require("async")
 
@@ -50,7 +51,7 @@ local function initialize()
             function(pid_)
                 local pid = tonumber(pid_)
                 if pid then
-                    D.log(D.debug('xautolock is still running'))
+                    D.log(D.debug,'xautolock is still running')
                     gears.timer.start_new(0.5,
                             function()
                                 initialize()

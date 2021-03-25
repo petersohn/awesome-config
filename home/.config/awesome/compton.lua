@@ -5,13 +5,14 @@ local command = require("command")
 local D = require("debug_util")
 local Process = require("Process")
 
-local enabled = not os.getenv("DISABLE_COMPTON")
+local enabled = true
+local disable_compton = os.getenv("DISABLE_COMPTON")
 local transparency_enabled = true
 local opacity = 0.85
 
 local compton_command = command.get_available_command({{command="compton"}})
 
-local process = Process("Compton", compton_command)
+local process = Process("Compton", compton_command, false)
 
 local compton = {}
 
@@ -33,6 +34,10 @@ local function setup_config_file()
 end
 
 local function reset_config()
+    if disable_compton then
+        return
+    end
+
     setup_config_file()
     if enabled then
         process:restart()
@@ -40,6 +45,10 @@ local function reset_config()
 end
 
 local function start()
+    if disable_compton then
+        return
+    end
+
     if not compton_command then
         D.log(D.warning, "Compton is not available")
         return
@@ -49,6 +58,10 @@ local function start()
 end
 
 local function set_enabled(value)
+    if disable_compton then
+        return
+    end
+
     if value == enabled then
         return
     end
@@ -108,12 +121,14 @@ function compton.toggle()
     set_enabled(not enabled)
 end
 
-awesome.connect_signal("startup",
-    function()
-        awful.spawn.with_shell("killall compton")
-        if enabled then
-            start()
-        end
-    end)
+if not disable_compton then
+    awesome.connect_signal("startup",
+        function()
+            awful.spawn.with_shell("killall compton")
+            if enabled then
+                start()
+            end
+        end)
+end
 
 return compton

@@ -30,7 +30,7 @@ local function check_name(name)
     end
 end
 
-function Process.new(name, command)
+function Process.new(name, command, autorestart)
     if objects[name] then
         error(name .. " already exists")
     end
@@ -209,12 +209,14 @@ function Process.new(name, command)
     create_timer("restart", {timeout=0.5, single_shot=true})
     create_timer("stop", {timeout=2, single_shot=false})
 
-    local pid = running_pids[name]
-    if pid then
-        D.log(D.info, "Process " .. name .. " is already running as "
-            .. tostring(pid) .. ". Restarting.")
-        awful.spawn.with_shell("kill " .. tostring(pid))
-        self.state_machine:process_event("start")
+    if autorestart == nil or autorestart then
+        local pid = running_pids[name]
+        if pid then
+            D.log(D.info, "Process " .. name .. " is already running as "
+                .. tostring(pid) .. ". Restarting.")
+            awful.spawn.with_shell("kill " .. tostring(pid))
+            self.state_machine:process_event("start")
+        end
     end
 
     self.was_running = false
