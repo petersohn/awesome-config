@@ -144,8 +144,8 @@ function Process.new(name, command)
                     to="Starting",
                     action={"start", "reset_tries"},
                 },
-            WaitForStartBeforeStop={
             },
+            WaitForStartBeforeStop={
                 start={
                     to="Starting",
                 },
