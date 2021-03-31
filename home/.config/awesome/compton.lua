@@ -4,9 +4,10 @@ local async = require("async")
 local command = require("command")
 local D = require("debug_util")
 local Process = require("Process")
+local variables = require("variables")
 
 local enabled = true
-local disable_compton = os.getenv("DISABLE_COMPTON")
+local disable_compton = variables.is_minimal
 local transparency_enabled = true
 local opacity = 0.85
 

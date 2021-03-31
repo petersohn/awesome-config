@@ -8,7 +8,8 @@ local variables = require("variables")
 local persist_data = {}
 local initialized = false
 
-local persist_file = variables.config_dir .. "/persist.json"
+local persist_file = variables.config_dir .. "/persist_"
+    .. os.getenv("DISPLAY") .. ".json"
 
 local function manage_client(c)
     if not initialized then

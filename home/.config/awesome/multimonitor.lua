@@ -433,6 +433,9 @@ local function on_sreen_layout_detected(layout)
 end
 
 function multimonitor.detect_screens()
+    if variables.is_minimal then
+        return
+    end
     D.log(D.debug, "Detect screens")
     xrandr.get_outputs(on_sreen_layout_detected)
 end
@@ -495,6 +498,10 @@ function multimonitor.set_system_tray_position()
 end
 
 function multimonitor.set_brightness(value)
+    if variables.is_minimal then
+        return
+    end
+
     if value > 1.0 then
         value = 1.0
     end
@@ -508,6 +515,10 @@ function multimonitor.set_brightness(value)
 end
 
 function multimonitor.increase_brightness(amount)
+    if variables.is_minimal then
+        return
+    end
+
     layout = get_current_configuration("layout")
     current = tables.get(layout, "brightness", 1.0)
     multimonitor.set_brightness(current + amount)
@@ -533,24 +544,27 @@ local function cleanup_clients()
     end
 end
 
-awesome.connect_signal("startup",
-        function()
-            client.connect_signal("manage", manage_client)
-            client.connect_signal("property::position", move_client)
-            client.connect_signal("property::size", move_client)
-            client.connect_signal("unmanage", unmanage_client)
-            cleanup_clients()
-            multimonitor.detect_screens()
-        end)
 
-if gears.filesystem.file_readable(configured_outputs_file) then
-    load_configured_outputs()
+if not variables.is_minimal then
+    awesome.connect_signal("startup",
+            function()
+                client.connect_signal("manage", manage_client)
+                client.connect_signal("property::position", move_client)
+                client.connect_signal("property::size", move_client)
+                client.connect_signal("unmanage", unmanage_client)
+                cleanup_clients()
+                multimonitor.detect_screens()
+            end)
+
+    if gears.filesystem.file_readable(configured_outputs_file) then
+        load_configured_outputs()
+    end
+
+    local screen_check_timer = gears.timer({
+            timeout=2,
+            autostart=true,
+            callback=check_screens,
+            single_shot=false})
 end
-
-local screen_check_timer = gears.timer({
-        timeout=2,
-        autostart=true,
-        callback=check_screens,
-        single_shot=false})
 
 return multimonitor

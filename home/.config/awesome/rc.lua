@@ -350,7 +350,9 @@ local globalkeys = awful.util.table.join(root.keys(),
           {description = "Show screen configurator", group = "screen"}),
     awful.key({ modkey, }, "l",
           function()
-              locker.lock()
+              if not variables.is_minimal then
+                  locker.lock()
+              end
           end,
           {description = "Lock session", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
@@ -840,23 +842,6 @@ local function has_client_with(func)
     return false
 end
 
-local function check_fullscreen()
-    local has_fullscreen = has_client_with(
-        function(c) return c.fullscreen end)
-    if has_fullscreen and not fullscreen_idle_prevention then
-        locker.prevent_idle:lock()
-        fullscreen_idle_prevention = true
-    elseif not has_fullscreen and fullscreen_idle_prevention then
-        locker.prevent_idle:unlock()
-        fullscreen_idle_prevention = false
-    end
-end
-
-client.connect_signal("manage", check_fullscreen)
-client.connect_signal("unmanage", check_fullscreen)
-client.connect_signal("property::size", check_fullscreen)
-client.connect_signal("property::position", check_fullscreen)
-
 awesome.connect_signal("startup",
         function()
             command.start_if_not_running(variables.clipboard_manager, "")
@@ -908,14 +893,33 @@ if gears.filesystem.file_readable(local_rc_file) then
     dofile(local_rc_file)
 end
 
-locker.init(require("xautolock"), {
-    locker="xsecurelock --",
-    notifier="/usr/libexec/xsecurelock/until_nonidle " ..
-        "/usr/libexec/xsecurelock/dimmer",
-    lock_time=15,   -- minutes
-    blank_time=30,  -- minutes
-    notify_time=30  -- seconds
-})
+if not variables.is_minimal then
+    local function check_fullscreen()
+        local has_fullscreen = has_client_with(
+            function(c) return c.fullscreen end)
+        if has_fullscreen and not fullscreen_idle_prevention then
+            locker.prevent_idle:lock()
+            fullscreen_idle_prevention = true
+        elseif not has_fullscreen and fullscreen_idle_prevention then
+            locker.prevent_idle:unlock()
+            fullscreen_idle_prevention = false
+        end
+    end
+
+    client.connect_signal("manage", check_fullscreen)
+    client.connect_signal("unmanage", check_fullscreen)
+    client.connect_signal("property::size", check_fullscreen)
+    client.connect_signal("property::position", check_fullscreen)
+
+    locker.init(require("xautolock"), {
+        locker="xsecurelock --",
+        notifier="/usr/libexec/xsecurelock/until_nonidle " ..
+            "/usr/libexec/xsecurelock/dimmer",
+        lock_time=15,   -- minutes
+        blank_time=30,  -- minutes
+        notify_time=30  -- seconds
+    })
+end
 
 -- locker.init(require("xscreensaver"))
 

@@ -6,6 +6,7 @@ local async = require("async")
 local Semaphore = require("Semaphore")
 local D = require("debug_util")
 local StateMachine = require("StateMachine")
+local variables = require("variables")
 
 local locker = {}
 
@@ -228,6 +229,8 @@ function locker.init(backend_, args)
     initialized = true
 end
 
-reset_state_machine()
+if not variables.is_minimal then
+    reset_state_machine()
+end
 
 return locker

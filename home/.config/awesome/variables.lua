@@ -42,6 +42,7 @@ variables.nvidia_settings = command.get_available_command({
     })
 
 variables.editor_cmd = variables.terminal .. " -e " .. variables.editor
+variables.is_minimal = os.getenv('AWESOME_MINIMAL')
 
 return variables
 

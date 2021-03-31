@@ -31,6 +31,11 @@ local function check_name(name)
 end
 
 function Process.new(name, command, autorestart)
+    if variables.is_minimal then
+        D.log(D.error, "Processes not supported in minimal config")
+        return
+    end
+
     if objects[name] then
         error(name .. " already exists")
     end
