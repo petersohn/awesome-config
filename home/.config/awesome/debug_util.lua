@@ -66,13 +66,15 @@ debug_file_name = "awesome.debug.log"
 local severities = {"D", "I", "W", "E", "C"}
 local cleanup_script = variables.config_dir .. "/logfile-cleanup"
 local archive_script = variables.config_dir .. "/logfile-archive"
+local pid = "?"
 
 function D.log(severity, message)
     local severity_name = severities[severity]
     if not severity_name then
         return
     end
-    local log_str = os.date("%F %T: ") .. "[" .. severities[severity] .. "] "
+    local log_str = os.date("%F %T: ") .. "[" .. pid .. "] ("
+        .. severities[severity] .. ") "
         .. tostring(message) .. "\n"
     if severity >= D.info then
         local log_file = io.open(log_file_name, "a")
@@ -114,6 +116,12 @@ function D.notify_error(args)
     else
         naughty.notify(args)
     end
+end
+
+local f = io.popen("bash -c 'ps -o ppid= -p $$'")
+if f ~= nil then
+    pid = f:read("*a"):match("^%s*(.-)%s*$")
+    f:close()
 end
 
 return D
