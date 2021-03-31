@@ -207,7 +207,7 @@ local function get_screens_by_name()
 end
 
 local function restore_clients(clients)
-    D.log(D.info, "Restoring client positions.")
+    D.log(D.debug, "Restoring client positions.")
     if not is_layout_up_to_date() then
         D.log(D.debug, "Screen layout is not up to date. Not restoring clients.")
         return
@@ -257,7 +257,7 @@ end
 
 local function finalize_configuration(configuration, preferred_positions)
     if not is_layout_up_to_date() then
-        D.log(D.info, "Screen layout is not up to date.")
+        D.log(D.debug, "Screen layout is not up to date.")
         return false
     end
 
@@ -413,9 +413,7 @@ local function on_sreen_layout_detected(layout)
     local configuration = configured_outputs[key]
 
     if configured_screen_layout and configured_screen_layout.key == key then
-        if is_layout_equal(layout.outputs, configuration.layout.outputs) then
-            D.log(D.debug, "Screen configuration is unchanged.")
-        else
+        if not is_layout_equal(layout.outputs, configuration.layout.outputs) then
             D.log(D.info, "New screen layout detected.")
             prompt_layout_change(configuration, layout)
         end
@@ -436,7 +434,6 @@ function multimonitor.detect_screens()
     if variables.is_minimal then
         return
     end
-    D.log(D.debug, "Detect screens")
     xrandr.get_outputs(on_sreen_layout_detected)
 end
 

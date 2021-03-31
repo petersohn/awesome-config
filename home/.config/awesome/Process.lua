@@ -279,12 +279,16 @@ function actions.start(args)
     local command = self.command
     local command_name = tables.concatenate(command)
 
-    D.log(D.info, "Running command: " .. command_name)
+    D.log(D.debug, "Running command: " .. command_name)
     local pid = async.spawn_and_get_lines(command, {
         line=function(line)
             self:emit_signal("line", line)
         end,
         finish=function(code, log)
+            local severity = D.warning
+            if not args.state_machine:should_be_running() then
+                severity = D.debug
+            end
             D.log(D.warning, "Command stopped: " .. command_name)
             D.log(D.debug, log.stderr)
             self.pid = nil

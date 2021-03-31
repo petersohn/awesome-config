@@ -958,7 +958,7 @@ else
                         status .. ", " .. level .. "%")
                     local prev_level = nil
                     if not battery_info[name] then
-                        D.log(D.info, "Found battery: " .. name)
+                        D.log(D.debug, "Found battery: " .. name)
                         prev_level = 0
                     else
                         prev_level = battery_info[name].level

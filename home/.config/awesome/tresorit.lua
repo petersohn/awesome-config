@@ -33,7 +33,6 @@ local function on_command_finished(user, command, result, callback)
         D.log(D.debug, error_string)
     end
     if callback then
-        D.log(D.debug, "callig callback")
         callback(user, result.lines, error_string)
     end
 end
@@ -53,7 +52,6 @@ local function call_tresorit_cli(user, command, callback, error_handler)
         user_arg = "--user " .. user .. " "
     end
 
-    D.log(D.debug, "Call tresorit-cli " .. user_arg .. command)
     local spawn_result = async.spawn_and_get_lines(
             tresorit_command .. " --porcelain " .. user_arg .. command, {
         line=function(line)
@@ -276,9 +274,6 @@ local function on_status(user_, result, error_string)
             end
         end
     end
-    D.log(D.debug, "Tresorit: running=" .. tostring(running)
-        .. " logged_in=" .. tostring(logged_in)
-        .. " error=" .. tostring(error_string))
     stopped_widget.visible = not error_string and not running
     logout_widget.visible = running and not logged_in
     error_widget.visible = error_string ~= nil
