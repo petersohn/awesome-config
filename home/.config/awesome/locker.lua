@@ -22,7 +22,7 @@ local backend = nil
 local function reset_state_machine()
     state_machine = StateMachine({
         name="Locker",
-        severity=D.info,
+        severity=D.debug,
         initial="Start",
         actions=actions,
         states={

@@ -217,7 +217,7 @@ function Process.new(name, command, autorestart)
     if autorestart == nil or autorestart then
         local pid = running_pids[name]
         if pid then
-            D.log(D.info, "Process " .. name .. " is already running as "
+            D.log(D.debug, "Process " .. name .. " is already running as "
                 .. tostring(pid) .. ". Restarting.")
             awful.spawn.with_shell("kill " .. tostring(pid))
             self.state_machine:process_event("start")
@@ -286,11 +286,13 @@ function actions.start(args)
         end,
         finish=function(code, log)
             local severity = D.warning
-            if not args.state_machine:should_be_running() then
+            if not self:should_be_running() then
                 severity = D.debug
             end
-            D.log(D.warning, "Command stopped: " .. command_name)
-            D.log(D.debug, log.stderr)
+            D.log(severity, "Command stopped: " .. command_name)
+            if log.stderr ~= "" then
+                D.log(D.debug, log.stderr)
+            end
             self.pid = nil
             running_pids[state_machine.name] = nil
             save_running_pids()

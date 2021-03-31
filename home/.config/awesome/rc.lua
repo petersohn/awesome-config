@@ -861,7 +861,7 @@ local function check_zoom()
             name = 'enable'
             value = '1'
         end
-        D.log(D.info, 'Zoom status changed, ' .. name .. ' flipping')
+        D.log(D.debug, 'Zoom status changed, ' .. name .. ' flipping')
         awful.spawn.with_shell(variables.nvidia_settings .. ' -a AllowFlipping='
             .. value)
         had_zoom = has_zoom
