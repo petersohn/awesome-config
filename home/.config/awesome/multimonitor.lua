@@ -83,7 +83,6 @@ local function apply_brightness()
 end
 
 local function save_configured_outputs()
-    D.log(D.debug, "Saving screen configuration to file.")
     serialize.save_to_file(configured_outputs_file, configured_outputs)
 end
 
@@ -449,8 +448,6 @@ function multimonitor.print_debug_info()
 end
 
 local function save_client_position(client_configuration, c)
-    D.log(D.debug, "Save client position for "
-            .. D.get_client_debug_info(c))
     set_client_configuration(client_configuration, c)
     save_configured_outputs()
 end
