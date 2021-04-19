@@ -836,23 +836,19 @@ awesome.connect_signal("startup",
             command.start_if_not_running(variables.bluetooth_manager, "")
         end)
 
-local had_zoom = nil
-
-local function check_zoom(has_zoom)
-    if has_zoom then
-        name = 'disable'
-        value = '0'
-    else
-        name = 'enable'
-        value = '1'
-    end
-    D.log(D.debug, name .. ' flipping')
-    awful.spawn.with_shell(variables.nvidia_settings .. ' -a AllowFlipping='
-        .. value)
-end
-
 if variables.nvidia_settings ~= nil then
-    require("zoom"):connect_signal("status_changed", check_zoom)
+    require("zoom"):connect_signal("status_changed", function(obj, has_zoom)
+        if has_zoom then
+            name = 'disable'
+            value = '0'
+        else
+            name = 'enable'
+            value = '1'
+        end
+        D.log(D.debug, name .. ' flipping')
+        awful.spawn.with_shell(variables.nvidia_settings .. ' -a AllowFlipping='
+            .. value)
+    end)
 end
 
 -- }}}
