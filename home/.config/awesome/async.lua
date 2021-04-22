@@ -31,7 +31,7 @@ function async.spawn_and_get_output(command, callback)
                     local result = nil
                     async.safe_call(
                             function()
-                                result = callback(stdout, exit_code)
+                                result = callback(stdout, exit_code, stderr)
                             end)
                     if not result and exit_code ~= 0 then
                         D.notify_error({
