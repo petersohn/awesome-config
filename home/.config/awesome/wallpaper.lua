@@ -17,6 +17,7 @@ local wallpaper = {}
 function wallpaper.init()
     D.log(D.info, "Init wallpapers")
     if has_wallpapers_dir then
+        beautiful.wallpaper = nil
         wallpaper.choose_wallpaper()
     elseif gears.filesystem.file_readable(wallpaper_file) then
         beautiful.wallpaper = wallpaper_file
@@ -37,21 +38,24 @@ function wallpaper.choose_wallpaper()
             table.insert(wallpapers, line)
         end,
         done=function()
-            beautiful.wallpaper = wallpapers[math.random(#wallpapers)]
-            D.log(D.debug, "Chosen wallpaper: " .. beautiful.wallpaper)
             for s in screen do
-                wallpaper.set_wallpaper(s)
+                wallpaper.set_wallpaper(s, wallpapers[math.random(#wallpapers)])
             end
         end})
 end
 
-function wallpaper.set_wallpaper(s)
+function wallpaper.set_wallpaper(s, filename)
     if beautiful.wallpaper then
-        D.log(D.debug, "Set wallpaper for screen "
-                .. multimonitor.get_screen_name(s) .. ": "
-                .. beautiful.wallpaper)
-        gears.wallpaper.maximized(beautiful.wallpaper, s, false)
+        filename = beautiful.wallpaper
     end
+    if not filename then
+        return
+    end
+
+    D.log(D.debug, "Set wallpaper for screen "
+            .. multimonitor.get_screen_name(s) .. ": "
+            .. filename)
+    gears.wallpaper.maximized(filename, s, false)
 end
 
 if has_wallpapers_dir then
