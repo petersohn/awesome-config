@@ -115,7 +115,7 @@ function async.run_command_continuously(command, line_callback, start_callback,
                 local pid = async.spawn_and_get_lines(command, {
                         line=line_callback,
                         finish=function()
-                            D.log(D.debug, "Command stopped: " .. command_str)
+                            D.log(D.warning, "Command stopped: " .. command_str)
                             if not finish_callback() then
                                 return callback()
                             end
