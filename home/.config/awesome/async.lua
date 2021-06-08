@@ -28,7 +28,7 @@ function async.spawn_and_get_output(command, callback)
     return handle_start_command(command_str, function()
         return awful.spawn.easy_async(command,
                 function(stdout, stderr, _, exit_code)
-                    local result = nil
+                    local result = true
                     async.safe_call(
                             function()
                                 result = callback(stdout, exit_code, stderr)
