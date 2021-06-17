@@ -75,7 +75,7 @@ local function call_tresorit_cli(user, command, callback, error_handler)
                     handled = error_handler(err)
                 end
                 if not handled then
-                    D.notify_error({title="Error", text=err})
+                    D.log(D.error, err)
                 end
             else
                 on_done()
