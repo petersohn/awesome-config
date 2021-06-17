@@ -7,12 +7,15 @@ local async = require("async")
 local command = require("command")
 local D = require("debug_util")
 local variables = require("variables_base")
+local xautolock = require("xautolock")
 
 local tresorit = {}
 
 local tresorit_command = command.get_available_command({
     {command="tresorit-cli", test="tresorit-cli status"}
 })
+
+local is_running = false
 
 local function on_command_finished(user, command, result, callback)
     local error_code = nil
@@ -38,6 +41,7 @@ local function on_command_finished(user, command, result, callback)
 end
 
 local function call_tresorit_cli(user, command, callback, error_handler)
+    is_running = true
     local result = {lines={}, has_error=nil, result_code=nil, stderr=nil}
     local on_done = function()
         if result.has_error ~= nil and result.result_code ~= nil then
@@ -171,10 +175,8 @@ local function append_tooltip_text(s)
 end
 
 local backoff_timeout = 10
-
-
 local users_to_go = {}
-
+local is_locked = false
 
 local commit = nil
 
@@ -302,6 +304,12 @@ local function on_status(user_, result, error_string)
 end
 
 commit = function(err)
+    is_running = false
+
+    if is_locked then
+        return false
+    end
+
     if err then
         tooltip.text = err
         error_widget.visible = true
@@ -328,10 +336,20 @@ commit = function(err)
     return false
 end
 
-
 local last_call
 
 if tresorit_command ~= nil then
+    xautolock.connect_signal('locked', function()
+            is_locked = true
+        end)
+    xautolock.connect_signal('unlocked', function()
+            is_locked = false
+            if not is_running then
+                last_call = os.time()
+                timer:start()
+            end
+        end)
+
     D.log(D.info, "Has tresorit-cli")
     timer = gears.timer{
         timeout=2,
@@ -346,6 +364,10 @@ if tresorit_command ~= nil then
     call_tresorit_cli(nil, "start")
 
     gears.timer.start_new(60, function()
+        if is_locked then
+            return
+        end
+
         local now = os.time()
         if now - last_call > 60 then
             message = "Tresorit-cli not called since "
