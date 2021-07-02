@@ -13,17 +13,21 @@ function async.safe_call(action)
     end
 end
 
-local function handle_start_command(command, action)
+local function handle_start_command(command, action, silent)
     local result = action()
     if type(result) == "string" then
-        D.notify_error({
-                title="Error starting command: " .. command,
-                text=result})
+        local error_string = "Error starting command: " .. command
+        if silent then
+            D.log(D.error, error_string);
+            D.log(D.error, result);
+        else
+            D.notify_error({title=error_string, text=result})
+        end
     end
     return result
 end
 
-function async.spawn_and_get_output(command, callback)
+function async.spawn_and_get_output(command, callback, silent)
     local command_str = D.to_string_recursive(command)
     return handle_start_command(command_str, function()
         return awful.spawn.easy_async(command,
@@ -39,10 +43,10 @@ function async.spawn_and_get_output(command, callback)
                                 text=stderr})
                     end
                 end)
-    end)
+    end, silent)
 end
 
-function async.spawn_and_get_lines(command, callbacks)
+function async.spawn_and_get_lines(command, callbacks, silent)
     local log = {stderr=""}
     local done = nil
     if callbacks.done then
@@ -72,7 +76,7 @@ function async.spawn_and_get_lines(command, callbacks)
                     end
                 end,
                 output_done=done})
-    end)
+    end, silent)
 end
 
 function async.run_continuously(action)

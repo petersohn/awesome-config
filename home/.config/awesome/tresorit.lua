@@ -3,7 +3,7 @@ local gears = require("gears")
 local naughty = require("naughty")
 local wibox = require("wibox")
 
-local async = require("async")
+    local async = require("async")
 local command = require("command")
 local D = require("debug_util")
 local variables = require("variables_base")
@@ -84,7 +84,7 @@ local function call_tresorit_cli(user, command, callback, error_handler)
             else
                 on_done()
             end
-        end})
+        end}, true)
     if type(spawn_result) == "string" and error_handler then
         error_handler(spawn_result)
     end
