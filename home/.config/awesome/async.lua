@@ -13,16 +13,19 @@ function async.safe_call(action)
     end
 end
 
+local function print_error(title, description, silent)
+    if silent then
+        D.log(D.error, title);
+        D.log(D.error, description);
+    else
+        D.notify_error({title=title, text=description})
+    end
+end
+
 local function handle_start_command(command, action, silent)
     local result = action()
     if type(result) == "string" then
-        local error_string = "Error starting command: " .. command
-        if silent then
-            D.log(D.error, error_string);
-            D.log(D.error, result);
-        else
-            D.notify_error({title=error_string, text=result})
-        end
+        print_error("Error starting command: " .. command, result, silent)
     end
     return result
 end
@@ -38,9 +41,8 @@ function async.spawn_and_get_output(command, callback, silent)
                                 result = callback(stdout, exit_code, stderr)
                             end)
                     if not result and exit_code ~= 0 then
-                        D.notify_error({
-                                title="Error running command: " .. command_str,
-                                text=stderr})
+                        print_error("Error running command: " .. command_str,
+                            stderr, silent)
                     end
                 end)
     end, silent)
@@ -70,9 +72,8 @@ function async.spawn_and_get_lines(command, callbacks, silent)
                         result = callbacks.finish(code, log)
                     end
                     if not result and code ~= 0 then
-                        D.notify_error({
-                                title="Error running command: " .. command_str,
-                                text=log.stderr})
+                        print_error("Error running command: " .. command_str,
+                            log.stderr, silent)
                     end
                 end,
                 output_done=done})
