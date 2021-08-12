@@ -11,7 +11,10 @@ local disable_compton = variables.is_minimal
 local transparency_enabled = true
 local opacity = 0.85
 
-local compton_command = command.get_available_command({{command="compton"}})
+local compton_command = command.get_available_command({
+    {command="picom"},
+    {command="compton"},
+})
 
 local process = Process("Compton", compton_command, false)
 
@@ -20,15 +23,14 @@ local compton = {}
 local function setup_config_file()
     local content =
         'backend = "glx";\n' ..
-        'paint-on-overlay = true;\n' ..
-        'vsync = "opengl-swc";\n'
+        'vsync = "true";\n'
     if transparency_enabled then
         content = content ..
             'inactive-opacity = ' .. tostring(opacity) .. ';\n' ..
             'focus-exclude = "! name~=\'\' || class_g = \'XScreenSaver\'";\n'
     end
 
-    local filename = os.getenv("HOME") .. "/.config/compton.conf"
+    local filename = os.getenv("HOME") .. "/.config/picom.conf"
     local f = io.open(filename, "w")
     f:write(content)
     f:close()
