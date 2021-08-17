@@ -94,9 +94,11 @@ awesome.connect_signal("startup",
                 hibernate=systemctl_command .. " hibernate",
                 poweroff=systemctl_command .. " poweroff",
             }
-            local power_key_inhibitor = dbus_.inhibit(
-                "handle-suspend-key:handle-lid-switch:handle-power-key",
-                "Handle power keys by awesome", "block")
+            if not variables.is_minimal then
+                local power_key_inhibitor = dbus_.inhibit(
+                    "handle-suspend-key:handle-lid-switch:handle-power-key",
+                    "Handle power keys by awesome", "block")
+            end
 
         else
             commands = {

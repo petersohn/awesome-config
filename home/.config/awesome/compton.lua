@@ -127,7 +127,7 @@ end
 if not disable_compton then
     awesome.connect_signal("startup",
         function()
-            awful.spawn.with_shell("killall compton")
+            awful.spawn.with_shell("killall " .. compton_command)
             if enabled then
                 start()
             end
