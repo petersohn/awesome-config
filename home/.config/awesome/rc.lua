@@ -466,7 +466,12 @@ local globalkeys = awful.util.table.join(root.keys(),
                     c.sticky = false
                 end
             end,
-            {description="focus last started client", group="client"})
+            {description="focus last started client", group="client"}),
+    awful.key({modkey, "Control"}, "x",
+            function()
+                awful.spawn.with_shell("xkill")
+            end,
+            {description="xkill", group="client"})
 )
 
 local function has_no_transient(target)
