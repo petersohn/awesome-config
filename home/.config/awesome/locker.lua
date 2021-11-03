@@ -92,7 +92,7 @@ local function reset_state_machine()
                     action="add_callback"
                 },
                 timeout={
-                    action="lock",
+                    action="lock_timeout",
                 },
                 locked={
                     to="Locked",
@@ -155,6 +155,12 @@ end
 function actions.lock()
     if backend then
         backend.lock()
+    end
+end
+
+function actions.lock_timeout()
+    if backend then
+        backend.lock_timeout()
     end
 end
 

@@ -47,6 +47,10 @@ function xscreensaver.lock()
     awful.spawn.with_shell("xscreensaver-command -lock")
 end
 
+function xscreensaver.lock_timeout()
+    xscreensaver.lock()
+end
+
 function xscreensaver.disable_screen_out()
 end
 

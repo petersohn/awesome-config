@@ -13,6 +13,7 @@ local lock_commands = {"xautolock -locknow"}
 local object = gears.object{}
 local xautolock = {}
 local args = {}
+local locks_failed = 0
 
 function xautolock.enable()
     async.run_commands(enable_commands)
@@ -26,11 +27,22 @@ function xautolock.lock()
     async.run_commands(lock_commands)
 end
 
+function xautolock.lock_timeout()
+    locks_failed = locks_failed + 1
+    if locks_failed >= 3 then
+        awful.spawn.with_shell("killall xautolock")
+        locks_failed = 0
+    else
+        async.run_commands(lock_commands)
+    end
+end
+
 function xautolock.disable_screen_out()
     async.run_commands(disable_screensaver_commands)
 end
 
 function xautolock._on_locked()
+    locks_failed = 0
     object:emit_signal("locked")
 end
 
@@ -68,6 +80,7 @@ local function initialize()
                             .. " -notify " .. tostring(args.notify_time),
                             function() end,
                             function()
+                                locks_failed = 0
                                 object:emit_signal("started")
                             end,
                             function()
