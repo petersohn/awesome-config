@@ -288,7 +288,7 @@ local globalkeys = awful.util.table.join(root.keys(),
     awful.key({ modkey, "Control"}, "v",
         function ()
             awful.spawn.with_shell(
-                'sleep 0.5; xdotool type --delay 100 "$(xsel --clipboard)"')
+                'sleep 0.5; xdotool type --delay 100 --file - < <(xsel --clipboard)')
         end,
         {description = "Force paste", group = "input"}
     ),
