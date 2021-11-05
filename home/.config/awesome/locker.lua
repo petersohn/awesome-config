@@ -226,6 +226,9 @@ function locker.init(backend_, args)
         state_machine:process_event("unlocked")
     end)
     backend.connect_signal("started", function()
+        if not state_machine then
+            reset_state_machine()
+        end
         state_machine:process_event("init")
     end)
     backend.connect_signal("stopped", function()
@@ -233,10 +236,6 @@ function locker.init(backend_, args)
     end)
     backend.init(args)
     initialized = true
-end
-
-if not variables.is_minimal then
-    reset_state_machine()
 end
 
 return locker
