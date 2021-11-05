@@ -31,7 +31,6 @@ function xautolock.lock_timeout()
     locks_failed = locks_failed + 1
     if locks_failed >= 3 then
         awful.spawn.with_shell("killall xautolock")
-        locks_failed = 0
     else
         async.run_commands(lock_commands)
     end
@@ -80,8 +79,11 @@ local function initialize()
                             .. " -notify " .. tostring(args.notify_time),
                             function() end,
                             function()
-                                locks_failed = 0
                                 object:emit_signal("started")
+                                if locks_failed > 0 then
+                                    locks_failed = 0
+                                    locker.lock()
+                                end
                             end,
                             function()
                                 object:emit_signal("stopped")
