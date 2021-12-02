@@ -907,6 +907,20 @@ end
 -- locker.init(require("xscreensaver"))
 
 naughty.config.notify_callback = function(args)
+    for s, snotif in pairs(naughty.notifications) do
+        for pos, notifications in pairs(snotif) do
+            local ids = {}
+            for i, notification in pairs(notifications) do
+                table.insert(ids, notification.id)
+            end
+            table.sort(ids)
+            for i = 1, #ids - 3 do
+                naughty.destroy(naughty.getById(
+                    ids[i], naughty.notificationClosedReason.expired))
+            end
+        end
+    end
+
     if args.icon_size == nil or args.icon_size > 64 then
         args.icon_size = 64
     end
