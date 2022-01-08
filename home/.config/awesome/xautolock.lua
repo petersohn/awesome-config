@@ -82,7 +82,7 @@ local function initialize()
                                 object:emit_signal("started")
                                 if locks_failed > 0 then
                                     locks_failed = 0
-                                    locker.lock()
+                                    xautolock.lock()
                                 end
                             end,
                             function()
