@@ -30,6 +30,7 @@ end
 function xautolock.lock_timeout()
     locks_failed = locks_failed + 1
     if locks_failed >= 3 then
+        D.log(D.error, "Locker failed, restarting")
         awful.spawn.with_shell("killall xautolock")
     else
         async.run_commands(lock_commands)

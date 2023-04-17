@@ -893,6 +893,7 @@ if not variables.is_minimal then
     client.connect_signal("unmanage", check_fullscreen)
     client.connect_signal("property::size", check_fullscreen)
     client.connect_signal("property::position", check_fullscreen)
+    client.connect_signal("property::floating_geometry", check_fullscreen)
 
     locker.init(require("xautolock"), {
         locker="xsecurelock --",

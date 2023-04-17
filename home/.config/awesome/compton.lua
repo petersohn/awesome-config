@@ -23,7 +23,7 @@ local compton = {}
 local function setup_config_file()
     local content =
         'backend = "glx";\n' ..
-        'vsync = "true";\n'
+        'vsync = true;\n'
     if transparency_enabled then
         content = content ..
             'inactive-opacity = ' .. tostring(opacity) .. ';\n' ..
