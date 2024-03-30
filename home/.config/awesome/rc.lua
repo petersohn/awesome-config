@@ -387,7 +387,7 @@ local globalkeys = awful.util.table.join(root.keys(),
               {description = "quit awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "r", power.reboot,
               {description = "reboot", group = "awesome"}),
-    awful.key({ modkey, "Shift"   }, "p", power.poweroff,
+    awful.key({ modkey, "Shift", "Control" }, "p", power.poweroff,
               {description = "power off", group = "awesome"}),
 
     awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
@@ -907,7 +907,16 @@ end
 
 -- locker.init(require("xscreensaver"))
 
+old_callback = naughty.config.notify_callback
+
 naughty.config.notify_callback = function(args)
+    if old_callback ~= nil then
+        args = old_callback(args)
+        if args == nil then
+            return
+        end
+    end
+
     for s, snotif in pairs(naughty.notifications) do
         for pos, notifications in pairs(snotif) do
             local ids = {}
