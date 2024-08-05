@@ -160,6 +160,7 @@ keyboard_layout_switcher.update = function()
     local t = keyboard_layout_switcher.layout[keyboard_layout_switcher.current]
     set_keyboard_layout_text(t)
     os.execute( keyboard_layout_switcher.cmd .. " " .. t[1] .. " " .. t[2] )
+    os.execute("setxkbmap -option caps:escape")
 end
 keyboard_layout_switcher.widget:connect_signal("button::press",
         keyboard_layout_switcher.switch)
