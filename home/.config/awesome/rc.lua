@@ -381,6 +381,18 @@ local globalkeys = awful.util.table.join(root.keys(),
                         function(c) client.focus = c end)
             end,
             {description = "Take screenshot", group = "launcher"}),
+    -- awful.key({"Control"}, "Print",
+    --         function ()
+    --             awful.spawn(variables.screenshot_tool, true,
+    --                     function(c) client.focus = c end)
+    --         end,
+    --         {description = "Take screenshot", group = "launcher"}),
+    -- awful.key({"Shift"}}, "Print",
+    --         function ()
+    --             awful.spawn(variables.screenshot_tool, true,
+    --                     function(c) client.focus = c end)
+    --         end,
+    --         {description = "Take screenshot", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", power.quit,

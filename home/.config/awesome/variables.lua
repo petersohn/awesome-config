@@ -23,8 +23,8 @@ variables.clipboard_manager = command.get_available_command({
         {command="qlipper", test="which qlipper"},
     })
 variables.screenshot_tool = command.get_available_command({
-    {command="gnome-screenshot", args="--interactive"},
     {command="spectacle"},
+    {command="gnome-screenshot", args="--interactive"},
     })
 variables.password_manager = command.get_available_command({
     {command="keepassxc"},
