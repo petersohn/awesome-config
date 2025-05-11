@@ -176,7 +176,7 @@ end)
 awful.screen.connect_for_each_screen(function(s)
     D.log(D.debug, "Got screen: " .. multimonitor.get_screen_name(s))
     -- Wallpaper
-    wallpaper.set_wallpaper(s)
+    wallpaper.choose_wallpaper(s)
 
     -- Each screen has its own tag table.
     awful.tag({"1", "2"}, s, awful.layout.layouts[1])

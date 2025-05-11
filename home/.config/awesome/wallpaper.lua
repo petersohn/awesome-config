@@ -24,7 +24,7 @@ function wallpaper.init()
 
 end
 
-function wallpaper.choose_wallpaper()
+function wallpaper.choose_wallpaper(screen_to_choose)
     if not has_wallpapers_dir then
         return
     end
@@ -37,6 +37,10 @@ function wallpaper.choose_wallpaper()
             table.insert(wallpapers, line)
         end,
         done=function()
+            if screen_to_choose then
+                screen_to_choose.chosen_wallpaper = wallpapers[math.random(#wallpapers)]
+                wallpaper.set_wallpaper(screen_to_choose)
+            end
             for s in screen do
                 s.chosen_wallpaper = wallpapers[math.random(#wallpapers)]
                 wallpaper.set_wallpaper(s)
@@ -62,7 +66,7 @@ function wallpaper.set_wallpaper(s)
 end
 
 if has_wallpapers_dir then
-    gears.timer.start_new(300,
+    gears.timer.start_new(600,
         function()
             wallpaper.choose_wallpaper()
             return true
