@@ -18,6 +18,7 @@ variables.browser = command.get_available_command({
         {command="google-chrome"},
     })
 variables.clipboard_manager = command.get_available_command({
+        {command="copyq", args="--start-server"},
         {command="clipit"},
         {command="klipper"},
         {command="qlipper", test="which qlipper"},
