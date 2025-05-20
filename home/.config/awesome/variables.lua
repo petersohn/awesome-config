@@ -24,6 +24,7 @@ variables.clipboard_manager = command.get_available_command({
         {command="qlipper", test="which qlipper"},
     })
 variables.screenshot_tool = command.get_available_command({
+    {command="flameshot", args="gui"},
     {command="spectacle"},
     {command="gnome-screenshot", args="--interactive"},
     })

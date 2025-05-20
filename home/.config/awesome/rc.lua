@@ -915,9 +915,10 @@ if not variables.is_minimal then
         blank_time=30,  -- minutes
         notify_time=30  -- seconds
     })
+
+    --locker.init(require("xscreensaver"))
 end
 
--- locker.init(require("xscreensaver"))
 
 old_callback = naughty.config.notify_callback
 
